@@ -1,9 +1,9 @@
 package invtweaks;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import invtweaks.api.IItemTreeListener;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -139,7 +139,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             if(extraDataAttr != null) {
                 try {
                     extraData = JsonToNBT.getTagFromJson(extraDataAttr);
-                } catch(NBTException e) {
+                } catch(CommandSyntaxException e) {
                     throw new RuntimeException("Data attribute failed for tree entry '" + name + "'", e);
                 }
             }
@@ -155,7 +155,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             if(extraDataAttr != null) {
                 try {
                     extraData = JsonToNBT.getTagFromJson(extraDataAttr.toLowerCase());
-                } catch(NBTException e) {
+                } catch(CommandSyntaxException e) {
                     throw new RuntimeException("Data attribute failed for tree entry '" + name + "'", e);
                 }
             }

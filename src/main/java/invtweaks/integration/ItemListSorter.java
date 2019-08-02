@@ -1,29 +1,19 @@
 package invtweaks.integration;
 
 import invtweaks.InvTweaks;
-import invtweaks.forge.CommonProxy;
-import invtweaks.forge.InvTweaksMod;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 
-;
 
 public class ItemListSorter {
-    @Mod.Instance
-    public static InvTweaksMod instance;
-
-    @SidedProxy(clientSide = "invtweaks.forge.ClientProxy", serverSide = "invtweaks.forge.CommonProxy")
-    public static CommonProxy proxy;
 
     public static void LinkJEITComparator() {
-        if(Loader.isModLoaded("jei")) {
+        if(ModList.get().isLoaded("jei")) {
             try {
                 Class<?> ingredientListElementComparator = Class.forName("mezz.jei.ingredients.IngredientListElementComparator");
                 Class<?> clientConfig = Class.forName("mezz.jei.config.Config");
@@ -54,7 +44,7 @@ public class ItemListSorter {
     }
 
     public static void ReloadItemList() {
-        if(Loader.isModLoaded("jei")) {
+        if(ModList.get().isLoaded("jei")) {
             try {
                 Class<?> ProxyCommonClient = Class.forName("mezz.jei.startup.ProxyCommonClient");
                 if(ProxyCommonClient != null) {
@@ -73,7 +63,11 @@ public class ItemListSorter {
     public static class ItemListComparator implements Comparator<ItemStack> {
         @Override
         public int compare(ItemStack o1, ItemStack o2) {
-            if(o1 == null && o2 == null) { return 0; } else if(o1 == null) { return 1; } else if(o2 == null) {
+            if(o1 == null && o2 == null) {
+                return 0;
+            } else if(o1 == null) {
+                return 1;
+            } else if(o2 == null) {
                 return -1;
             }
             return InvTweaks.getInstance().compareItems(o1, o2, true);
@@ -83,7 +77,11 @@ public class ItemListSorter {
     public static class ItemListComparator2 implements Comparator<ItemStack> {
         @Override
         public int compare(ItemStack o1, ItemStack o2) {
-            if(o1 == null && o2 == null) { return 0; } else if(o1 == null) { return 1; } else if(o2 == null) {
+            if(o1 == null && o2 == null) {
+                return 0;
+            } else if(o1 == null) {
+                return 1;
+            } else if(o2 == null) {
                 return -1;
             }
             return InvTweaks.getInstance().compareItems(o1, o2, false);

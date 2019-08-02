@@ -11,33 +11,29 @@ import invtweaks.container.IContainerManager;
 import invtweaks.forge.InvTweaksMod;
 import invtweaks.integration.ItemListChecker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.CraftingScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.Items;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.*;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvents;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -167,7 +163,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private static int getContainerRowSize(@NotNull ContainerScreen guiContainer) {
-        return getSpecialChestRowSize(guiContainer.inventorySlots);
+        return getSpecialChestRowSize(guiContainer.getContainer());
     }
 
     @NotNull
@@ -204,9 +200,9 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private static int compareCurDamage(ItemStack i, ItemStack j) {
         //Use remaining durability to sort, favoring more damaged.
-        int curDamage1 = i.getItemDamage();
-        int curDamage2 = j.getItemDamage();
-        if(i.isItemStackDamageable() && !getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_INVERT_TOOL_DAMAGE).equals(InvTweaksConfig.VALUE_TRUE)) {
+        int curDamage1 = i.getDamage();
+        int curDamage2 = j.getDamage();
+        if(i.getStack().isDamageable() && !getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_INVERT_TOOL_DAMAGE).equals(InvTweaksConfig.VALUE_TRUE)) {
             return curDamage2 - curDamage1;
         } else {
             return curDamage1 - curDamage2;
@@ -267,7 +263,7 @@ public class InvTweaks extends InvTweaksObfuscation {
      * To be called on each tick when a menu is open. Handles the GUI additions and the middle clicking.
      */
     public void onTickInGUI(Screen guiScreen) {
-        if(mc.playerController.isSpectator()) {
+        if(mc.playerController.isSpectatorMode()) {
             onTick();
             return;
         }
@@ -297,7 +293,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
             // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
             storedStackId = (currentStack.isEmpty()) ? null : currentStack.getItem().getRegistryName().toString();
-            storedStackDamage = (currentStack.isEmpty()) ? 0 : currentStack.getItemDamage();
+            storedStackDamage = (currentStack.isEmpty()) ? 0 : currentStack.getDamage();
             if(!wasInGUI) {
                 wasInGUI = true;
             }
@@ -317,7 +313,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
             // Check current GUI
             @Nullable Screen guiScreen = getCurrentScreen();
-            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((ContainerScreen) guiScreen).inventorySlots) || isValidInventory(((ContainerScreen) guiScreen).inventorySlots)))) {
+            if(guiScreen == null || (isGuiContainer(guiScreen) && (isValidChest(((ContainerScreen) guiScreen).getContainer()) || isValidInventory(((ContainerScreen) guiScreen).getContainer())))) {
                 // Sorting!
                 handleSorting(guiScreen);
             }
@@ -363,7 +359,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 @NotNull ItemStack stack = containerMgr.getItemStack(currentSlot);
 
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                List<IItemTreeItem> items = tree.getItems(stack.getItem().getRegistryName().toString(), stack.getItemDamage());
+                List<IItemTreeItem> items = tree.getItems(stack.getItem().getRegistryName().toString(), stack.getDamage());
 
                 List<Integer> preferredPositions = config.getRules().stream().filter(rule -> tree.matches(items, rule.getKeyword())).flatMapToInt(e -> Arrays.stream(e.getPreferredSlots())).boxed().collect(Collectors.toList());
 
@@ -514,8 +510,8 @@ public class InvTweaks extends InvTweaksObfuscation {
     private int compareNames(ItemStack i, ItemStack j) {
         boolean iHasName = i.hasDisplayName();
         boolean jHasName = j.hasDisplayName();
-        @NotNull String iDisplayName = i.getDisplayName();
-        @NotNull String jDisplayName = j.getDisplayName();
+        @NotNull String iDisplayName = i.getDisplayName().getFormattedText();
+        @NotNull String jDisplayName = j.getDisplayName().getFormattedText();
 
         //Custom named items come first.
         if(iHasName || jHasName) {
@@ -614,12 +610,12 @@ public class InvTweaks extends InvTweaksObfuscation {
         } else {
             ArmorItem a1 = (ArmorItem) iItem;
             ArmorItem a2 = (ArmorItem) jItem;
-            if(a1.armorType != a2.armorType) {
-                return a2.armorType.compareTo(a1.armorType);
-            } else if(a1.damageReduceAmount != a2.damageReduceAmount) {
-                return a2.damageReduceAmount - a1.damageReduceAmount;
-            } else if(a1.toughness != a2.toughness) {
-                return a2.toughness > a1.toughness ? -1 : 1;
+            if(a1.getEquipmentSlot() != a2.getEquipmentSlot()) {
+                return a2.getEquipmentSlot().compareTo(a1.getEquipmentSlot());
+            } else if(a1.getDamageReduceAmount() != a2.getDamageReduceAmount()) {
+                return a2.getDamageReduceAmount() - a1.getDamageReduceAmount();
+            } else if(a1.getToughness() != a2.getToughness()) {
+                return a2.getToughness() > a1.getToughness() ? -1 : 1;
             }
             return compareMaxDamage(i, j);
         }
@@ -728,7 +724,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
         tickNumber++;
 
-        if(mc.playerController.isSpectator()) {
+        if(mc.playerController.isSpectatorMode()) {
             return false;
         }
 
@@ -775,35 +771,35 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(isSortingShortcutDown() && switchMapping != null) {
             @Nullable String newRuleset = null;
             int pressedKey = switchMapping.getKeyCodes().get(0);
-            if(pressedKey >= Keyboard.KEY_1 && pressedKey <= Keyboard.KEY_9) {
-                newRuleset = config.switchConfig(pressedKey - Keyboard.KEY_1);
+            if(pressedKey >= GLFW.GLFW_KEY_1 && pressedKey <= GLFW.GLFW_KEY_9) {
+                newRuleset = config.switchConfig(pressedKey - GLFW.GLFW_KEY_1);
             } else {
                 switch(pressedKey) {
-                    case Keyboard.KEY_NUMPAD1:
+                    case GLFW.GLFW_KEY_KP_1:
                         newRuleset = config.switchConfig(0);
                         break;
-                    case Keyboard.KEY_NUMPAD2:
+                    case GLFW.GLFW_KEY_KP_2:
                         newRuleset = config.switchConfig(1);
                         break;
-                    case Keyboard.KEY_NUMPAD3:
+                    case GLFW.GLFW_KEY_KP_3:
                         newRuleset = config.switchConfig(2);
                         break;
-                    case Keyboard.KEY_NUMPAD4:
+                    case GLFW.GLFW_KEY_KP_4:
                         newRuleset = config.switchConfig(3);
                         break;
-                    case Keyboard.KEY_NUMPAD5:
+                    case GLFW.GLFW_KEY_KP_5:
                         newRuleset = config.switchConfig(4);
                         break;
-                    case Keyboard.KEY_NUMPAD6:
+                    case GLFW.GLFW_KEY_KP_6:
                         newRuleset = config.switchConfig(5);
                         break;
-                    case Keyboard.KEY_NUMPAD7:
+                    case GLFW.GLFW_KEY_KP_7:
                         newRuleset = config.switchConfig(6);
                         break;
-                    case Keyboard.KEY_NUMPAD8:
+                    case GLFW.GLFW_KEY_KP_8:
                         newRuleset = config.switchConfig(7);
                         break;
-                    case Keyboard.KEY_NUMPAD9:
+                    case GLFW.GLFW_KEY_KP_9:
                         newRuleset = config.switchConfig(8);
                         break;
                 }
@@ -891,7 +887,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
         @Nullable String currentStackId = (currentStack.isEmpty()) ? null : currentStack.getItem().getRegistryName().toString();
 
-        int currentStackDamage = (currentStack.isEmpty()) ? 0 : currentStack.getItemDamage();
+        int currentStackDamage = (currentStack.isEmpty()) ? 0 : currentStack.getDamage();
         int focusedSlot = getFocusedSlot() + 27; // Convert to container slots index
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
@@ -940,7 +936,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private void handleMiddleClick(Screen guiScreen) {
-        if(Mouse.isButtonDown(2)) {
+        if(GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_MOUSE_BUTTON_2) == 1) {
 
             if(!cfgManager.makeSureConfigurationIsLoaded()) {
                 return;
@@ -951,7 +947,7 @@ public class InvTweaks extends InvTweaksObfuscation {
             if(config.getProperty(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK).equals(InvTweaksConfig.VALUE_TRUE) && isGuiContainer(guiScreen)) {
 
                 @NotNull ContainerScreen guiContainer = (ContainerScreen) guiScreen;
-                Container container = guiContainer.inventorySlots;
+                Container container = guiContainer.getContainer();
 
                 if(!chestAlgorithmButtonDown) {
                     chestAlgorithmButtonDown = true;
@@ -1035,18 +1031,21 @@ public class InvTweaks extends InvTweaksObfuscation {
     // See note above
     private boolean isRecipeBookVisible(@NotNull ContainerScreen guiContainer) {
         if(guiContainer instanceof InventoryScreen) {
-            return ((InventoryScreen) guiContainer).recipeBookGui.isVisible();
+            // TODO Fix method name
+            return ((InventoryScreen) guiContainer).func_194310_f().isVisible();
         } else if(guiContainer instanceof CraftingScreen) {
-            return ((CraftingScreen) guiContainer).recipeBookGui.isVisible();
+            // TODO Fix method name
+            return ((CraftingScreen) guiContainer).func_194310_f().isVisible();
         } else {
             return false;
         }
     }
 
+    // TODO figure out this dumb button stuff
     private void handleGUILayout(@NotNull ContainerScreen guiContainer) {
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
-        Container container = guiContainer.inventorySlots;
+        Container container = guiContainer.getContainer();
 
         boolean isValidChest = isValidChest(container);
 
@@ -1064,7 +1063,7 @@ public class InvTweaks extends InvTweaksObfuscation {
             // Look for the mods buttons
             boolean customButtonsAdded = false;
 
-            List<Button> controlList = guiContainer.buttonList;
+            List<Button> controlList = guiContainer.buttons;
             @NotNull List<Button> toRemove = new ArrayList<>();
             for(@NotNull Button button : controlList) {
                 if(button.id >= InvTweaksConst.JIMEOWAN_ID && button.id < (InvTweaksConst.JIMEOWAN_ID + 4)) {
@@ -1084,7 +1083,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 // Check for custom button texture
                 boolean customTextureAvailable = hasTexture(new ResourceLocation("inventorytweaks", "textures/gui/button10px.png"));
 
-                int id = InvTweaksConst.JIMEOWAN_ID, x = guiContainer.guiLeft + guiContainer.xSize - 16, y = guiContainer.guiTop + 5;
+                int id = InvTweaksConst.JIMEOWAN_ID, x = guiContainer.getGuiLeft() + guiContainer.getXSize() - 16, y = guiContainer.getGuiTop() + 5;
                 // Inventory button
                 if(!isValidChest) {
                     /*if(hasRecipeButton(guiContainer)) {
@@ -1098,7 +1097,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                     // Reset sorting algorithm selector
                     chestAlgorithmClickTimestamp = 0;
 
-                    boolean isChestWayTooBig = isLargeChest(guiContainer.inventorySlots);
+                    boolean isChestWayTooBig = isLargeChest(guiContainer.getContainer());
 
                     // NotEnoughItems/JustEnoughItems compatibility
                     if(isChestWayTooBig && isItemListVisible) {
@@ -1151,12 +1150,13 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private void handleShortcuts(@NotNull ContainerScreen guiScreen) {
         // Check open GUI
-        if(!(isValidChest(guiScreen.inventorySlots) || isValidInventory(guiScreen.inventorySlots))) {
+        if(!(isValidChest(guiScreen.getContainer()) || isValidInventory(guiScreen.getContainer()))) {
             return;
         }
 
         // Configurable shortcuts
-        if(Mouse.isButtonDown(0) || Mouse.isButtonDown(1)) {
+        long handle = guiScreen.getMinecraft().mainWindow.getHandle();
+        if(GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_1) == 1 || GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_2) == 1) {
             if(!mouseWasDown) {
                 mouseWasDown = true;
 
@@ -1174,7 +1174,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private int getItemOrder(@NotNull ItemStack itemStack) {
         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-        List<IItemTreeItem> items = cfgManager.getConfig().getTree().getItems(itemStack.getItem().getRegistryName().toString(), itemStack.getItemDamage(), itemStack.getTagCompound());
+        List<IItemTreeItem> items = cfgManager.getConfig().getTree().getItems(itemStack.getItem().getRegistryName().toString(), itemStack.getDamage(), itemStack.getTag());
         return (items.size() > 0) ? items.get(0).getOrder() : Integer.MAX_VALUE;
     }
 
@@ -1182,9 +1182,11 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(sortKeyEnabled && !textboxMode) {
             int keyCode = cfgManager.getConfig().getSortKeyCode();
             if(keyCode > 0) {
-                return Keyboard.isKeyDown(keyCode);
+                return GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), keyCode) == 1;
             } else {
-                return Mouse.isButtonDown(100 + keyCode);
+                // TODO WTF?
+                // return Mouse.isButtonDown(100 + keyCode);
+                return false;
             }
         } else {
             return false;
@@ -1202,8 +1204,10 @@ public class InvTweaks extends InvTweaksObfuscation {
      * When Minecraft gains focus, reset all pressed keys to avoid the "stuck keys" bug.
      */
     private void unlockKeysIfNecessary() {
-        boolean hasFocus = Display.isActive();
-        if(!hadFocus && hasFocus) {
+        // TODO glfwGetWindowAttrib is used correctly??
+        // boolean hasFocus = GLFW.glfwGetWindowAttrib(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_FOCUSED) != 0;
+        // boolean hasFocus = Display.isActive();
+        /*if(!hadFocus && hasFocus) {
             Keyboard.destroy();
             boolean firstTry = true;
             while(!Keyboard.isCreated()) {
@@ -1220,7 +1224,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 logInGame("invtweaks.keyboardfix.recover");
             }
         }
-        hadFocus = hasFocus;
+        hadFocus = hasFocus;*/
     }
 
     /**
@@ -1236,7 +1240,8 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     private void playClick() {
         if(!cfgManager.getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
-            mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            mc.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            // mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
     }
 

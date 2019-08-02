@@ -2,7 +2,6 @@ package invtweaks;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -31,7 +30,7 @@ public class InvTweaksConst {
     public static final int TOOLTIP_DELAY = 800;
 
     // File constants
-    public static final File MINECRAFT_DIR = Minecraft.getMinecraft().gameDir;
+    public static final File MINECRAFT_DIR = Minecraft.getInstance().gameDir;
     public static final File MINECRAFT_CONFIG_DIR = new File(MINECRAFT_DIR, "config/");
     public static final File INVTWEAKS_CONFIG_DIR = new File(MINECRAFT_CONFIG_DIR, "InvTweaks/");
     public static final File INVTWEAKS_TREES_DIR = new File(INVTWEAKS_CONFIG_DIR, "trees/");
@@ -63,5 +62,6 @@ public class InvTweaksConst {
     public static final int INVENTORY_ROW_SIZE = 9;
     public static final int HOTBAR_SIZE = 9;
     public static final int INVENTORY_HOTBAR_SIZE = INVENTORY_ROW_SIZE;
-    public static final int DAMAGE_WILDCARD = OreDictionary.WILDCARD_VALUE;
+    // TODO WTF is this
+    public static final int DAMAGE_WILDCARD = Short.MAX_VALUE;
 }

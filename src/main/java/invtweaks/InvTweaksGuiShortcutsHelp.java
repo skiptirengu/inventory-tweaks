@@ -38,7 +38,7 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
 
         // Note: 0x0000EEFF = blue color (currently unused)
 
-        drawDefaultBackground();
+        renderBackground();
         drawCenteredString(obf.getFontRenderer(), "WARNING: Since 1.3.1, shortcuts won't work as expected. Looking for a workaround...", width / 2, 5, 0xff0000);
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.help.shortcuts.title"), width / 2, 20, 0xffffff); // Gui.drawCenteredString
         @NotNull String clickLabel = I18n.format("invtweaks.help.shortcuts.click");

@@ -4,11 +4,12 @@ import invtweaks.api.IItemTreeItem;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvents;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -53,9 +54,11 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
         boolean hasSubtypes = false;
 
         // TODO: ResourceLocation
-        @Nullable Item original = Item.REGISTRY.getObject(new ResourceLocation(wantedId));
+        // TODO: subtypes
+        @Nullable Item original = GameRegistry.findRegistry(Item.class).getValue(new ResourceLocation(wantedId));
         if(original != null) {
-            hasSubtypes = original.getHasSubtypes();
+            hasSubtypes = false;
+            // hasSubtypes = original.getHasSubtypes();
         }
 
         @NotNull List<InvTweaksConfigSortingRule> matchingRules = new ArrayList<>();
@@ -108,12 +111,12 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     candidateStack = container.getItemStack(i);
                     if(!candidateStack.isEmpty()) {
                         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                        @NotNull List<IItemTreeItem> candidateItems = tree.getItems(candidateStack.getItem().getRegistryName().toString(), candidateStack.getItemDamage());
+                        @NotNull List<IItemTreeItem> candidateItems = tree.getItems(candidateStack.getItem().getRegistryName().toString(), candidateStack.getDamage());
                         if(tree.matches(candidateItems, rule.getKeyword())) {
                             // Choose tool of highest damage value
                             if(candidateStack.getMaxStackSize() == 1) {
                                 // Item
-                                if((replacementStack.isEmpty() || candidateStack.getItemDamage() > replacementStack.getItemDamage()) && (!refillBeforeBreak || candidateStack.getMaxDamage() - candidateStack.getItemDamage() > config.getIntProperty(InvTweaksConfig.PROP_AUTO_REFILL_DAMAGE_THRESHHOLD))) {
+                                if((replacementStack.isEmpty() || candidateStack.getDamage() > replacementStack.getDamage()) && (!refillBeforeBreak || candidateStack.getMaxDamage() - candidateStack.getDamage() > config.getIntProperty(InvTweaksConfig.PROP_AUTO_REFILL_DAMAGE_THRESHHOLD))) {
                                     replacementStack = candidateStack;
                                     replacementStackSlot = i;
                                 }
@@ -134,7 +137,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
             for(int i = 0; i < InvTweaksConst.INVENTORY_SIZE; i++) {
                 candidateStack = container.getItemStack(i);
                 // TODO: ResourceLocation
-                if(!candidateStack.isEmpty() && Objects.equals(candidateStack.getItem().getRegistryName().toString(), wantedId) && candidateStack.getItemDamage() == wantedDamage) {
+                if(!candidateStack.isEmpty() && Objects.equals(candidateStack.getItem().getRegistryName().toString(), wantedId) && candidateStack.getDamage() == wantedDamage) {
                     replacementStack = candidateStack;
                     replacementStackSlot = i;
                     break;
@@ -190,7 +193,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     if(!stack.isEmpty() && StringUtils.equals(stack.getItem().getRegistryName().toString(), expectedItemId) || this.refillBeforeBreak) {
                         if(containerMgr.move(targetedSlot, i) || containerMgr.move(i, targetedSlot)) {
                             if(!config.getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
-                                mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.ENTITY_CHICKEN_EGG, 1.0F));
+                                mc.getSoundHandler().play(SimpleSound.master(SoundEvents.ENTITY_CHICKEN_EGG, 1.0F));
                             }
                             // If item are swapped (like for mushroom soups),
                             // put the item back in the inventory if it is in the hotbar

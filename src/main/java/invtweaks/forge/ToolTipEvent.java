@@ -6,17 +6,19 @@ import invtweaks.InvTweaksConfigManager;
 import invtweaks.api.IItemTreeCategory;
 import invtweaks.api.IItemTreeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Mod.EventBusSubscriber(value = Side.CLIENT, modid = "inventorytweaks")
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "inventorytweaks")
 public class ToolTipEvent {
 
     @SubscribeEvent
@@ -29,7 +31,7 @@ public class ToolTipEvent {
         if(cfgManager == null) { return; }
 
         if(cfgManager.getConfig().getProperty(InvTweaksConfig.PROP_TOOLTIP_PATH).equals("true")) {
-            List<IItemTreeItem> items = cfgManager.getConfig().getTree().getItems(current.getItem().getRegistryName().toString(), current.getItemDamage(), current.getTagCompound());
+            List<IItemTreeItem> items = cfgManager.getConfig().getTree().getItems(current.getItem().getRegistryName().toString(), current.getDamage(), current.getTag());
             if(items.isEmpty()) { return; }
 
             Set<String> paths = new HashSet<>();
@@ -50,16 +52,16 @@ public class ToolTipEvent {
 
                 if(path.equals(altPath) || itemOrder > unsortedZone) {
                     if(!paths.contains(path)) {
-                        event.getToolTip().add(TextFormatting.DARK_GRAY + path + " (" + item.getOrder() + ")");
+                        event.getToolTip().add(new StringTextComponent(TextFormatting.DARK_GRAY + path + " (" + item.getOrder() + ")"));
                         paths.add(path);
                     }
                 } else {
                     if(!paths.contains(path)) {
-                        event.getToolTip().add(TextFormatting.DARK_GRAY + "T:" + path + " (" + item.getOrder() + ")");
+                        event.getToolTip().add(new StringTextComponent(TextFormatting.DARK_GRAY + "T:" + path + " (" + item.getOrder() + ")"));
                         paths.add(path);
                     }
                     if(!paths.contains(altPath)) {
-                        event.getToolTip().add(TextFormatting.DARK_GRAY + "M:" + altPath + " (" + item.getOrder() + ")");
+                        event.getToolTip().add(new StringTextComponent(TextFormatting.DARK_GRAY + "M:" + altPath + " (" + item.getOrder() + ")"));
                         paths.add(altPath);
                     }
                 }

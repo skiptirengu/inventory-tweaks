@@ -1,7 +1,8 @@
 package invtweaks;
 
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,23 +22,24 @@ public class InvTweaksShortcutMapping {
 
     public InvTweaksShortcutMapping(@NotNull String... keyNames) {
         for(String keyName : keyNames) {
+            // TODO Fix this
             // - Accept both KEY_### and ###, in case someone
             //   takes the LWJGL Javadoc at face value
             // - Accept LALT & RALT instead of LMENU & RMENU
-            keyName = keyName.trim().replace("KEY_", "").replace("ALT", "MENU");
-            keysToHold.add(Keyboard.getKeyIndex(keyName));
+            // keyName = keyName.trim().replace("KEY_", "").replace("ALT", "MENU");
+            // keysToHold.add(Keyboard.getKeyIndex(keyName));
         }
     }
 
     public boolean isTriggered(@NotNull Map<Integer, Boolean> pressedKeys) {
         for(Integer keyToHold : keysToHold) {
-            if(keyToHold != Keyboard.KEY_LCONTROL) {
+            if(keyToHold != GLFW.GLFW_KEY_LEFT_CONTROL) {
                 if(!pressedKeys.get(keyToHold)) {
                     return false;
                 }
             }
             // AltGr also activates LCtrl, make sure the real LCtrl has been pressed
-            else if(!pressedKeys.get(keyToHold) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
+            else if(!pressedKeys.get(keyToHold) || GLFW.glfwGetKey(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_KEY_MENU) == 1) {
                 return false;
             }
         }

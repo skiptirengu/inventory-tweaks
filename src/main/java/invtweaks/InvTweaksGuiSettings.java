@@ -38,7 +38,7 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
 
     @SuppressWarnings("unused")
     public InvTweaksGuiSettings(Screen parentScreen_) {
-        this(Minecraft.getMinecraft(), parentScreen_, InvTweaks.getConfigManager().getConfig());
+        this(Minecraft.getInstance(), parentScreen_, InvTweaks.getConfigManager().getConfig());
     }
 
     public InvTweaksGuiSettings(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {

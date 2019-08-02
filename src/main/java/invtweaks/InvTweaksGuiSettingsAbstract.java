@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextComponent;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
@@ -28,12 +30,13 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
     protected Screen parentScreen;
 
     public InvTweaksGuiSettingsAbstract(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {
+        super(new StringTextComponent(I18n.format("invtweaks.settings.title")));
 
         LABEL_DONE = I18n.format("invtweaks.settings.exit");
         ON = ": " + I18n.format("invtweaks.settings.on");
         OFF = ": " + I18n.format("invtweaks.settings.off");
 
-        mc = mc_;
+        minecraft = mc_;
         obf = new InvTweaksObfuscation(mc_);
         parentScreen = parentScreen_;
         config = config_;

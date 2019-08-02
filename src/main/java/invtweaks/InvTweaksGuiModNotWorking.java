@@ -33,7 +33,7 @@ public class InvTweaksGuiModNotWorking extends InvTweaksGuiSettingsAbstract {
         switch(guibutton.id) {
             // Back to main settings screen
             case ID_DONE:
-                obf.displayGuiScreen(new InvTweaksGuiSettings(mc, parentScreen, config));
+                obf.displayGuiScreen(new InvTweaksGuiSettings(getMinecraft(), parentScreen, config));
         }
     }
 

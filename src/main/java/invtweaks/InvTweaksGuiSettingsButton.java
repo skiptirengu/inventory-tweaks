@@ -38,7 +38,7 @@ public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
         @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(minecraft);
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
 
-        if(minecraft.playerController.isSpectator()) {
+        if(minecraft.playerController.isSpectatorMode()) {
             return false;
         }
 

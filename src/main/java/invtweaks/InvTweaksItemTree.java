@@ -4,17 +4,20 @@ package invtweaks;
 import invtweaks.api.IItemTree;
 import invtweaks.api.IItemTreeCategory;
 import invtweaks.api.IItemTreeItem;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.living.PotionEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -322,7 +325,7 @@ public class InvTweaksItemTree implements IItemTree {
         for(@Nullable ItemStack i : OreDictionary.getOres(oreName, false)) {
             if(i != null) {
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                addItem(category, new InvTweaksItemTreeItem(name, i.getItem().getRegistryName().toString(), i.getItemDamage(), null, order, path));
+                addItem(category, new InvTweaksItemTreeItem(name, i.getItem().getRegistryName().toString(), i.getDamage(), null, order, path));
             } else {
                 log.warn(String.format("An OreDictionary entry for %s is null", oreName));
             }
@@ -337,7 +340,7 @@ public class InvTweaksItemTree implements IItemTree {
             @NotNull ItemStack evOre = ev.getOre();
             if(!evOre.isEmpty()) {
                 // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
-                addItem(ore.category, new InvTweaksItemTreeItem(ore.name, evOre.getItem().getRegistryName().toString(), evOre.getItemDamage(), null, ore.order, ore.orePath));
+                addItem(ore.category, new InvTweaksItemTreeItem(ore.name, evOre.getItem().getRegistryName().toString(), evOre.getDamage(), null, ore.order, ore.orePath));
             } else {
                 log.warn(String.format("An OreDictionary entry for %s is null", ev.getName()));
             }
@@ -355,26 +358,26 @@ public class InvTweaksItemTree implements IItemTree {
             if(isClass) {
                 boolean doIt = true;
                 if(extraData != null) {
-                    if(doIt && extraData.hasKey("toolclass")) {
+                    if(doIt && extraData.contains("toolclass")) {
                         String tclass = extraData.getString("toolclass");
                         //We don't want the set, we want the one we will use during comparisons.
                         //An empty toolclass will match non-tools.                        
                         doIt = tclass.equals(InvTweaks.getToolClass(stack, item));
                     }
-                    if(doIt && extraData.hasKey("armortype") && item instanceof ArmorItem) {
+                    if(doIt && extraData.contains("armortype") && item instanceof ArmorItem) {
                         ArmorItem armor = (ArmorItem) item;
                         String keyArmorType = extraData.getString("armortype");
-                        String itemArmorType = armor.armorType.getName().toLowerCase();
+                        String itemArmorType = armor.getEquipmentSlot().getName().toLowerCase();
                         doIt = (keyArmorType.equals(itemArmorType));
                         armor = null;
                     }
-                    if(doIt && extraData.hasKey("isshield")) {
+                    if(doIt && extraData.contains("isshield")) {
                         doIt = item.isShield(stack, null);
                     }
                 }
                 //Checks out, add it to the tree:
                 if(doIt) {
-                    int dmg = item.isDamageable() ? InvTweaksConst.DAMAGE_WILDCARD : stack.getItemDamage();
+                    int dmg = item.isDamageable() ? InvTweaksConst.DAMAGE_WILDCARD : stack.getDamage();
                     addItem(category, new InvTweaksItemTreeItem(name, item.getRegistryName().toString(), dmg, null, order, path));
                 }
             }
@@ -386,23 +389,26 @@ public class InvTweaksItemTree implements IItemTree {
             //getDataForItemSubtypes(itemDump, entry.getValue(), entry.getKey(), includeToolClass, dumpNBT);
             Item item = entry.getValue();
 
-            if(item.getHasSubtypes()) {
-                for(ItemGroup tab : item.getCreativeTabs()) {
-                    if(tab != null) {
-                        NonNullList<ItemStack> stacks = NonNullList.<ItemStack>create();
-                        item.getSubItems(tab, stacks);
+            // TODO getHasSubtypes and getSubItems
+//            if(item.getHasSubtypes()) {
+//                for(ItemGroup tab : item.getCreativeTabs()) {
+//                    if(tab != null) {
+//                        NonNullList<ItemStack> stacks = NonNullList.create();
+//                        item.getSubItems(tab, stacks);
+//
+//                        for(ItemStack stack : stacks) {
+//                            allGameItems.add(stack);
+//                            // FIXME: Ignore identical duplicate entries from different tabs...
+//                            //addData(itemDump, item, rl, true, includeToolClass, dumpNBT, stack);
+//                        }
+//                    }
+//                }
+//            } else {
+//                // allGameItems.add(item.getDefaultInstance());
+//                //addData(itemDump, item, rl, false, includeToolClass, dumpNBT, new ItemStack(item, 1, 0));
+//            }
 
-                        for(ItemStack stack : stacks) {
-                            allGameItems.add(stack);
-                            // FIXME: Ignore identical duplicate entries from different tabs...
-                            //addData(itemDump, item, rl, true, includeToolClass, dumpNBT, stack);
-                        }
-                    }
-                }
-            } else {
-                allGameItems.add(item.getDefaultInstance());
-                //addData(itemDump, item, rl, false, includeToolClass, dumpNBT, new ItemStack(item, 1, 0));
-            }
+            allGameItems.add(item.getDefaultInstance());
         }
     }
 

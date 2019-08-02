@@ -2,11 +2,10 @@ package invtweaks;
 
 import invtweaks.forge.InvTweaksMod;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.util.Point;
 
 import java.awt.*;
 import java.util.List;
@@ -54,7 +53,15 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        controlList.add(new Button(ID_EDITSHORTCUTS, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile")));
+        controlList.add(
+                new Button(
+                        ID_EDITSHORTCUTS,
+                        (int) p.getX() + 55,
+                        height / 6 + 144,
+                        I18n.format("invtweaks.settings.advanced.mappingsfile"),
+                        null
+                )
+        );
 
         // Create settings buttons
 

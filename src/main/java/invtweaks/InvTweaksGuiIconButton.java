@@ -2,6 +2,7 @@ package invtweaks;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
@@ -25,19 +26,21 @@ public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
         useCustomTexture = useCustomTexture_;
     }
 
+    // TODO check this bad boi
     @Override
-    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        super.drawButton(mc, mouseX, mouseY, partialTicks);
+    public void renderButton(int mouseX, int mouseY, float partialTicks) {
+        super.renderButton(mouseX, mouseY, partialTicks);
 
         // Draw background (use the 4 corners of the texture to fit best its small size)
         int k = getHoverState(isMouseOverButton(mouseX, mouseY));
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         if(useCustomTexture) {
-            mc.getTextureManager().bindTexture(resourceButtonCustom);
+            Minecraft.getInstance().getTextureManager().bindTexture(resourceButtonCustom);
+            GuiUtils.drawTexturedModalRect(x, y, (k - 1) * 10, 0, width, height, 300);
             drawTexturedModalRect(x, y, (k - 1) * 10, 0, width, height);
         } else {
-            mc.getTextureManager().bindTexture(resourceButtonDefault);
+            Minecraft.getInstance().getTextureManager().bindTexture(resourceButtonDefault);
             drawTexturedModalRect(x, y, 1, 46 + k * 20 + 1, width / 2, height / 2);
             drawTexturedModalRect(x, y + height / 2, 1, 46 + k * 20 + 20 - height / 2 - 1, width / 2, height / 2);
             drawTexturedModalRect(x + width / 2, y, 200 - width / 2 - 1, 46 + k * 20 + 1, width / 2, height / 2);

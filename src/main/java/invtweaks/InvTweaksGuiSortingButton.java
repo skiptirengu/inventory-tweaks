@@ -3,7 +3,6 @@ package invtweaks;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
 import net.minecraft.client.Minecraft;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Chest sorting button
@@ -24,13 +23,14 @@ public class InvTweaksGuiSortingButton extends InvTweaksGuiIconButton {
     }
 
     @Override
-    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        super.drawButton(mc, mouseX, mouseY, partialTicks);
+    public void renderButton(int mouseX, int mouseY, float partialTicks) {
+        super.renderButton(mouseX, mouseY, partialTicks);
 
         // Display symbol
         int textColor = getTextColor(mouseX, mouseY);
-        switch(displayString) {
+        switch(getMessage()) {
             case "h":
+                // TODO drawRect stuff
                 drawRect(x + 3, y + 3, x + width - 3, y + 4, textColor);
                 drawRect(x + 3, y + 6, x + width - 3, y + 7, textColor);
                 break;
@@ -51,12 +51,14 @@ public class InvTweaksGuiSortingButton extends InvTweaksGuiIconButton {
      * Sort container
      */
     @Override
-    public boolean mousePressed(Minecraft minecraft, int i, int j) {
-        if(minecraft.playerController.isSpectator()) {
+    public boolean clicked(double i, double j) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if(minecraft.playerController.isSpectatorMode()) {
             return false;
         }
 
-        if(super.mousePressed(minecraft, i, j)) {
+        if(super.clicked(i, j)) {
             try {
                 new InvTweaksHandlerSorting(minecraft, cfgManager.getConfig(), section, algorithm, rowSize).sort();
             } catch(Exception e) {

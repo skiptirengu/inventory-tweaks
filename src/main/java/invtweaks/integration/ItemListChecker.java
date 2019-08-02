@@ -1,6 +1,6 @@
 package invtweaks.integration;
 
-import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ public class ItemListChecker {
     }
 
     private static Method getNeiHidden() {
-        if(Loader.isModLoaded("nei")) {
+        if(ModList.get().isLoaded("nei")) {
             try {
                 Class<?> clientConfig = Class.forName("codechicken.nei.NEIClientConfig");
                 if(clientConfig != null) {
@@ -40,7 +40,7 @@ public class ItemListChecker {
     }
 
     private static Method getJeiShown() {
-        if(Loader.isModLoaded("jei")) {
+        if(ModList.get().isLoaded("jei")) {
             try {
                 Class<?> clientConfig = Class.forName("mezz.jei.config.Config");
                 if(clientConfig != null) {

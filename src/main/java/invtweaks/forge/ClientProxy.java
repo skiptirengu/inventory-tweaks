@@ -25,10 +25,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.input.Keyboard;
 
 public class ClientProxy extends CommonProxy {
-    public static final KeyBinding KEYBINDING_SORT = new KeyBinding("invtweaks.key.sort", Keyboard.KEY_R, "invtweaks.key.category");
+    public static final KeyBinding KEYBINDING_SORT = new KeyBinding("invtweaks.key.sort", GLFW.GLFW_KEY_R, "invtweaks.key.category");
     public boolean serverSupportEnabled = false;
     public boolean serverSupportDetected = false;
     private InvTweaks instance;

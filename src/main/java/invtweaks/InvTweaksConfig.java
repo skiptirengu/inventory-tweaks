@@ -392,7 +392,7 @@ public class InvTweaksConfig {
     }
 
     public int getSortKeyCode() {
-        return ClientProxy.KEYBINDING_SORT.getKeyCode();
+        return ClientProxy.KEYBINDING_SORT.getKey().getKeyCode();
     }
 
 }

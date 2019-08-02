@@ -8,10 +8,10 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -63,14 +63,14 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
         registerShortcutMapping(InvTweaksShortcutType.MOVE_DOWN, new InvTweaksShortcutMapping(downKeyCode));
 
         // Add hotbar shortcuts (1-9) mappings
-        @NotNull int[] hotbarKeys = {Keyboard.KEY_1, Keyboard.KEY_2, Keyboard.KEY_3, Keyboard.KEY_4, Keyboard.KEY_5, Keyboard.KEY_6, Keyboard.KEY_7, Keyboard.KEY_8, Keyboard.KEY_9, Keyboard.KEY_NUMPAD1, Keyboard.KEY_NUMPAD2, Keyboard.KEY_NUMPAD3, Keyboard.KEY_NUMPAD4, Keyboard.KEY_NUMPAD5, Keyboard.KEY_NUMPAD6, Keyboard.KEY_NUMPAD7, Keyboard.KEY_NUMPAD8, Keyboard.KEY_NUMPAD9};
+        @NotNull int[] hotbarKeys = {GLFW.GLFW_KEY_1, GLFW.GLFW_KEY_2, GLFW.GLFW_KEY_3, GLFW.GLFW_KEY_4, GLFW.GLFW_KEY_5, GLFW.GLFW_KEY_6, GLFW.GLFW_KEY_7, GLFW.GLFW_KEY_8, GLFW.GLFW_KEY_9, GLFW.GLFW_KEY_KP_1, GLFW.GLFW_KEY_KP_2, GLFW.GLFW_KEY_KP_3, GLFW.GLFW_KEY_KP_4, GLFW.GLFW_KEY_KP_5, GLFW.GLFW_KEY_KP_6, GLFW.GLFW_KEY_KP_7, GLFW.GLFW_KEY_KP_8, GLFW.GLFW_KEY_KP_9};
         for(int i : hotbarKeys) {
             registerShortcutMapping(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT, new InvTweaksShortcutMapping(i));
         }
 
         // Register (L/R)SHIFT to allow to filter them
-        pressedKeys.put(Keyboard.KEY_LSHIFT, false);
-        pressedKeys.put(Keyboard.KEY_RSHIFT, false);
+        pressedKeys.put(GLFW.GLFW_KEY_LEFT_SHIFT, false);
+        pressedKeys.put(GLFW.GLFW_KEY_RIGHT_SHIFT, false);
     }
 
     private void registerShortcutMapping(InvTweaksShortcutType type, @NotNull InvTweaksShortcutMapping mapping) {
@@ -93,19 +93,23 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
             // Init shortcut
             @Nullable ShortcutConfig shortcutToTrigger = computeShortcutToTrigger();
             if(shortcutToTrigger != null) {
-                int ex = Mouse.getEventX(), ey = Mouse.getEventY();
+                double[] xPos = new double[1];
+                double[] yPos = new double[1];
+                GLFW.glfwGetCursorPos(Minecraft.getInstance().mainWindow.getHandle(), xPos, yPos);
+
+                int ex = (int) xPos[0], ey = (int) yPos[0];
 
                 // GO!
                 runShortcut(shortcutToTrigger);
 
                 // Reset mouse status to prevent default action.
                 // TODO Find a better solution, like 'anticipate' default action?
-                Mouse.destroy();
-                Mouse.create();
+                // Mouse.destroy();
+                // Mouse.create();
 
                 // Fixes a tiny glitch (Steve looks for a short moment
                 // at [0, 0] because of the mouse reset).
-                Mouse.setCursorPosition(ex, ey);
+                GLFW.glfwSetCursorPos(Minecraft.getInstance().mainWindow.getHandle(), xPos[0], yPos[0]);
             }
         } catch(Exception e) {
             InvTweaks.logInGameErrorStatic("invtweaks.shortcut.error", e);
@@ -186,7 +190,8 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                         shortcutConfig.toSection = ContainerSection.INVENTORY_HOTBAR;
                         @Nullable InvTweaksShortcutMapping hotbarShortcut = isShortcutDown(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT);
                         if(hotbarShortcut != null && !hotbarShortcut.getKeyCodes().isEmpty()) {
-                            String keyName = Keyboard.getKeyName(hotbarShortcut.getKeyCodes().get(0));
+                            // TODO Fix this key code mess
+                            String keyName = ""; // Keyboard.getKeyName(hotbarShortcut.getKeyCodes().get(0));
                             shortcutConfig.toIndex = -1 + Integer.parseInt(keyName.replace("NUMPAD", ""));
                         }
                     } else {
@@ -205,7 +210,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                         } else if(container.hasSection(ContainerSection.BREWING_INGREDIENT)) {
                             if(!shortcutConfig.fromStack.isEmpty()) {
                                 // TODO: ResourceLocation
-                                if(shortcutConfig.fromStack.getItem() == Item.REGISTRY.getObject(new ResourceLocation("potion"))) {
+                                if(shortcutConfig.fromStack.getItem() == GameRegistry.findRegistry(Item.class).getValue(new ResourceLocation("potion"))) {
                                     orderedSections.add(ContainerSection.BREWING_BOTTLES);
                                 } else {
                                     orderedSections.add(ContainerSection.BREWING_INGREDIENT);
@@ -262,7 +267,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                 }
 
                 // Shortcut modifiers
-                shortcutConfig.forceEmptySlot = Mouse.isButtonDown(1);
+                shortcutConfig.forceEmptySlot = GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_MOUSE_BUTTON_2) == 1;
                 shortcutConfig.action = shortcut.getAction();
                 shortcutConfig.scope = shortcut.getScope();
 
@@ -279,7 +284,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
             loadShortcuts(); // Reset mappings
         }
         for(int keyCode : pressedKeys.keySet()) {
-            if(keyCode > 0 && Keyboard.isKeyDown(keyCode)) {
+            if(keyCode > 0 && GLFW.glfwGetKey(Minecraft.getInstance().mainWindow.getHandle(), keyCode) == 1) {
                 if(!pressedKeys.get(keyCode)) {
                     pressedKeys.put(keyCode, true);
                 }

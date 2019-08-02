@@ -19,7 +19,11 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:' + minecraft_version + '-' + forge_version
+    minecraft([
+		group  : "${project.forge_group}",
+		name   : "forge",
+		version: "${project.minecraft_version}-${project.forge_version}"
+	])
     compile 'org.jetbrains:annotations:13.0'
 }
 
@@ -133,19 +137,25 @@ minecraft {
 
     runs {
         client = {
+            workingDirectory project.file('run')
+
             // recommended logging data for a userdev environment
             properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+
             // recommended logging level for the console
             properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
+
             source sourceSets.main
         }
         server = {
+            workingDirectory project.file('run')
+
             // recommended logging data for a userdev environment
             properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+
             // recommended logging level for the console
             properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
+            
             source sourceSets.main
         }
     }
