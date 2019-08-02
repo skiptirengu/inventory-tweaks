@@ -1,11 +1,14 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaks;
+import invtweaks.InvTweaksConfig;
+import invtweaks.InvTweaksConst;
+import invtweaks.InvTweaksObfuscation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.util.Point;
 
 import java.awt.*;
 import java.net.URL;
@@ -112,44 +115,48 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    protected void actionPerformed(@NotNull Button guibutton) {
-        super.actionPerformed(guibutton);
+    protected void actionPerformed(@NotNull Button guiButton) {
+        super.actionPerformed(guiButton);
+
+        if(!(guiButton instanceof InvTweaksGuiBaseButton)) {
+            return;
+        }
 
         // GuiButton
-        switch(guibutton.id) {
+        switch(((InvTweaksGuiBaseButton) guiButton).id) {
             // Toggle middle click shortcut
             case ID_MIDDLE_CLICK:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK, labelMiddleClick);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK, labelMiddleClick);
                 break;
 
             // Toggle auto-refill
             case ID_AUTO_REFILL:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_AUTO_REFILL, labelAutoRefill);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_AUTO_REFILL, labelAutoRefill);
                 break;
 
             // Toggle auto-refill before tool break
             case ID_BEFORE_BREAK:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK, labelAutoRefillBeforeBreak);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK, labelAutoRefillBeforeBreak);
                 break;
 
             // Toggle shortcuts
             case ID_SHORTCUTS:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts);
                 break;
 
             // Shortcuts help
             case ID_SHORTCUTS_HELP:
-                obf.displayGuiScreen(new InvTweaksGuiShortcutsHelp(mc, this, config));
+                obf.displayGuiScreen(new InvTweaksGuiShortcutsHelp(minecraft, this, config));
                 break;
 
             // More options screen
             case ID_MORE_OPTIONS:
-                obf.displayGuiScreen(new InvTweaksGuiSettingsAdvanced(mc, parentScreen, config));
+                obf.displayGuiScreen(new InvTweaksGuiSettingsAdvanced(minecraft, parentScreen, config));
                 break;
 
             // Sorting bug help screen
             case ID_BUG_SORTING:
-                obf.displayGuiScreen(new InvTweaksGuiModNotWorking(mc, parentScreen, config));
+                obf.displayGuiScreen(new InvTweaksGuiModNotWorking(minecraft, parentScreen, config));
                 break;
 
             // Open rules configuration in external editor

@@ -1,8 +1,9 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaksConst;
+import invtweaks.InvTweaksObfuscation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.client.config.HoverChecker;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Jimeo Wan
  */
-public class InvTweaksGuiTooltipButton extends GuiButtonExt {
+public class InvTweaksGuiTooltipButton extends InvTweaksGuiBaseButton {
     public final static int LINE_HEIGHT = 11;
 
     private int hoverTime = 0;
@@ -35,18 +36,16 @@ public class InvTweaksGuiTooltipButton extends GuiButtonExt {
     }
 
     public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_) {
-        super(x, y, w, h, displayString_, z -> {});
-        if(tooltip_ != null) {
-            setTooltip(tooltip_);
-        }
+        this(id_, x, y, w, h, displayString_, tooltip_, true);
     }
 
     public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_, boolean drawBackground_) {
-        super(x, y, w, h, displayString_, z -> {});
+        super(id_, x, y, w, h, displayString_);
         if(tooltip_ != null) {
             setTooltip(tooltip_);
         }
         drawBackground = drawBackground_;
+        hoverChecker = new HoverChecker(this, InvTweaksConst.TOOLTIP_DELAY);
     }
 
     // TODO geez
@@ -63,21 +62,9 @@ public class InvTweaksGuiTooltipButton extends GuiButtonExt {
         @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(mc);
 
         if(tooltipLines != null) {
-            // Compute hover time
-            if(isMouseOverButton(mouseX, mouseY)) {
-                long systemTime = System.currentTimeMillis();
-                if(prevSystemTime != 0) {
-                    hoverTime += systemTime - prevSystemTime;
-                }
-                prevSystemTime = systemTime;
-            } else {
-                hoverTime = 0;
-                prevSystemTime = 0;
-            }
 
             // Draw tooltip if hover time is long enough
-            if(hoverTime > InvTweaksConst.TOOLTIP_DELAY && tooltipLines != null) {
-
+            if(hoverChecker.checkHover(mouseX, mouseY) && tooltipLines != null) {
                 FontRenderer fontRenderer = obf.getFontRenderer();
 
                 // Compute tooltip params
@@ -109,7 +96,8 @@ public class InvTweaksGuiTooltipButton extends GuiButtonExt {
     }
 
     protected boolean isMouseOverButton(int i, int j) {
-        return i >= x && j >= y && i < (x + width) && j < (y + height);
+        return hoverChecker.checkHover(i, j);
+        // return i >= x && j >= y && i < (x + width) && j < (y + height);
     }
 
     protected int getTextColor(int i, int j) {

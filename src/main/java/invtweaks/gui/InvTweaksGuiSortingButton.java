@@ -1,8 +1,12 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaks;
+import invtweaks.InvTweaksConfigManager;
+import invtweaks.InvTweaksHandlerSorting;
 import invtweaks.api.SortingMethod;
 import invtweaks.api.container.ContainerSection;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 
 /**
  * Chest sorting button
@@ -31,18 +35,18 @@ public class InvTweaksGuiSortingButton extends InvTweaksGuiIconButton {
         switch(getMessage()) {
             case "h":
                 // TODO drawRect stuff
-                drawRect(x + 3, y + 3, x + width - 3, y + 4, textColor);
-                drawRect(x + 3, y + 6, x + width - 3, y + 7, textColor);
+                Screen.fill(x + 3, y + 3, x + width - 3, y + 4, textColor);
+                Screen.fill(x + 3, y + 6, x + width - 3, y + 7, textColor);
                 break;
             case "v":
-                drawRect(x + 3, y + 3, x + 4, y + height - 3, textColor);
-                drawRect(x + 6, y + 3, x + 7, y + height - 3, textColor);
+                Screen.fill(x + 3, y + 3, x + 4, y + height - 3, textColor);
+                Screen.fill(x + 6, y + 3, x + 7, y + height - 3, textColor);
                 break;
             default:
-                drawRect(x + 3, y + 3, x + width - 3, y + 4, textColor);
-                drawRect(x + 5, y + 4, x + 6, y + 5, textColor);
-                drawRect(x + 4, y + 5, x + 5, y + 6, textColor);
-                drawRect(x + 3, y + 6, x + width - 3, y + 7, textColor);
+                Screen.fill(x + 3, y + 3, x + width - 3, y + 4, textColor);
+                Screen.fill(x + 5, y + 4, x + 6, y + 5, textColor);
+                Screen.fill(x + 4, y + 5, x + 5, y + 6, textColor);
+                Screen.fill(x + 3, y + 6, x + width - 3, y + 7, textColor);
                 break;
         }
     }

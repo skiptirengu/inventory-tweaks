@@ -1,5 +1,9 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaks;
+import invtweaks.InvTweaksConfig;
+import invtweaks.InvTweaksConfigManager;
+import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import net.minecraft.client.Minecraft;
@@ -21,19 +25,20 @@ public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
     }
 
     @Override
-    public void drawButton(@NotNull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        super.drawButton(mc, mouseX, mouseY, partialTicks);
+    public void renderButton(int mouseX, int mouseY, float partialTicks) {
+        super.renderButton(mouseX, mouseY, partialTicks);
 
         // Display string
-        @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(mc);
-        drawCenteredString(obf.getFontRenderer(), displayString, x + 5, y - 1, getTextColor(mouseX, mouseY));
+        @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(Minecraft.getInstance());
+        drawCenteredString(obf.getFontRenderer(), getMessage(), x + 5, y - 1, getTextColor(mouseX, mouseY));
     }
 
     /**
      * Displays inventory settings GUI
      */
     @Override
-    public boolean mousePressed(Minecraft minecraft, int i, int j) {
+    public boolean mouseClicked(double i, double j, int l) {
+        Minecraft minecraft = Minecraft.getInstance();
 
         @NotNull InvTweaksObfuscation obf = new InvTweaksObfuscation(minecraft);
         @Nullable InvTweaksConfig config = cfgManager.getConfig();
@@ -42,7 +47,7 @@ public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
             return false;
         }
 
-        if(super.mousePressed(minecraft, i, j)) {
+        if(super.mouseClicked(i, j, l)) {
             // Put hold item down if necessary
             ContainerSectionManager containerMgr;
 

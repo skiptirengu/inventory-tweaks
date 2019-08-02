@@ -1,17 +1,16 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaks;
+import invtweaks.InvTweaksConfig;
+import invtweaks.InvTweaksObfuscation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.Point;
-
-import java.util.List;
 
 /**
  * The inventory and chest settings menu.
@@ -42,23 +41,19 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
         config = config_;
     }
 
+    // TODO initGui Stuff
     @Override
     public void initGui() {
-        List<Button> controlList = buttonList;
-        @NotNull Point p = new Point();
+        @NotNull InvTweaksGuiPoint p = new InvTweaksGuiPoint();
         moveToButtonCoords(1, p);
-        controlList.add(new Button(ID_DONE, p.getX() + 55, height / 6 + 168, LABEL_DONE)); // GuiButton
-
-        // Save control list
-        buttonList = controlList;
-
+        buttons.add(new InvTweaksGuiBaseButton(ID_DONE, p.getX() + 55, height / 6 + 168, LABEL_DONE)); // GuiButton
     }
 
     @Override
-    public void drawScreen(int i, int j, float f) {
-        drawDefaultBackground();
+    public void render(int i, int j, float f) {
+        renderBackground();
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.title"), width / 2, 20, 0xffffff);
-        super.drawScreen(i, j, f);
+        super.render(i, j, f);
     }
 
     @Override
@@ -76,15 +71,15 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
         }
     }
 
-    protected void moveToButtonCoords(int buttonOrder, @NotNull Point p) {
+    protected void moveToButtonCoords(int buttonOrder, @NotNull InvTweaksGuiPoint p) {
         p.setX(width / 2 - 155 + ((buttonOrder + 1) % 2) * 160);
         p.setY(height / 6 + (buttonOrder / 2) * 24);
     }
 
     protected void toggleBooleanButton(@NotNull Button guibutton, @NotNull String property, String label) {
-        @NotNull Boolean enabled = !Boolean.valueOf(config.getProperty(property));
-        config.setProperty(property, enabled.toString());
-        guibutton.displayString = computeBooleanButtonLabel(property, label);
+        boolean enabled = !Boolean.parseBoolean(config.getProperty(property));
+        config.setProperty(property, Boolean.toString(enabled));
+        guibutton.setMessage(computeBooleanButtonLabel(property, label));
     }
 
     @NotNull

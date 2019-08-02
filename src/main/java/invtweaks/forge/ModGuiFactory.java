@@ -1,6 +1,6 @@
 package invtweaks.forge;
 
-import invtweaks.InvTweaksGuiSettings;
+import invtweaks.gui.InvTweaksGuiSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraftforge.fml.client.IModGuiFactory;

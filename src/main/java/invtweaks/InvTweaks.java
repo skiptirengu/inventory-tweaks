@@ -9,6 +9,8 @@ import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.DirectContainerManager;
 import invtweaks.container.IContainerManager;
 import invtweaks.forge.InvTweaksMod;
+import invtweaks.gui.InvTweaksGuiSettingsButton;
+import invtweaks.gui.InvTweaksGuiSortingButton;
 import invtweaks.integration.ItemListChecker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
@@ -209,6 +211,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
     }
 
+    // TODO rework with tags
     public static String getToolClass(ItemStack itemStack, Item item) {
         if(itemStack == null || item == null) { return ""; }
         Set<String> toolClassSet = item.getToolClasses(itemStack);

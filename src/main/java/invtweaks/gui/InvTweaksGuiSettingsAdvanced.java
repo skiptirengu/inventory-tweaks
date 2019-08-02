@@ -1,5 +1,8 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaks;
+import invtweaks.InvTweaksConfig;
+import invtweaks.InvTweaksConst;
 import invtweaks.forge.InvTweaksMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -8,7 +11,6 @@ import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.List;
 
 /**
  * The inventory and chest advanced settings menu.
@@ -46,107 +48,98 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
     public void initGui() {
         super.initGui();
 
-        List<Button> controlList = buttonList;
-        @NotNull Point p = new Point();
+        @NotNull InvTweaksGuiPoint p = new InvTweaksGuiPoint();
         int i = 0;
 
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        controlList.add(
-                new Button(
-                        ID_EDITSHORTCUTS,
-                        (int) p.getX() + 55,
-                        height / 6 + 144,
-                        I18n.format("invtweaks.settings.advanced.mappingsfile"),
-                        null
-                )
-        );
+        buttons.add(new InvTweaksGuiTooltipButton(ID_EDITSHORTCUTS, (int) p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile"), null));
 
         // Create settings buttons
 
         i += 2;
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(ID_SORT_ON_PICKUP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup), I18n.format("invtweaks.settings.advanced.sortonpickup.tooltip"));
-        controlList.add(sortOnPickupBtn);
+        InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(ID_SORT_ON_PICKUP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup), I18n.format("invtweaks.settings.advanced.sortonpickup.tooltip"));
+        buttons.add(sortOnPickupBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(ID_ENABLE_SOUNDS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds), I18n.format("invtweaks.settings.advanced.sounds.tooltip"));
-        controlList.add(enableSoundsBtn);
+        InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(ID_ENABLE_SOUNDS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds), I18n.format("invtweaks.settings.advanced.sounds.tooltip"));
+        buttons.add(enableSoundsBtn);
 
         moveToButtonCoords(i++, p);
-        controlList.add(new InvTweaksGuiTooltipButton(ID_CHESTS_BUTTONS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons), I18n.format("invtweaks.settings.chestbuttons.tooltip")));
+        buttons.add(new InvTweaksGuiTooltipButton(ID_CHESTS_BUTTONS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons), I18n.format("invtweaks.settings.chestbuttons.tooltip")));
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(ID_AUTO_EQUIP_ARMOR, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor), I18n.format("invtweaks.settings.advanced.autoequip.tooltip"));
-        controlList.add(autoEquipArmorBtn);
-
-        //noinspection UnusedAssignment
-        moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton serverAssistBtn = new InvTweaksGuiTooltipButton(ID_SERVER_ASSIST, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist), I18n.format("invtweaks.settings.advanced.serverassist.tooltip"));
-        controlList.add(serverAssistBtn);
+        InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(ID_AUTO_EQUIP_ARMOR, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor), I18n.format("invtweaks.settings.advanced.autoequip.tooltip"));
+        buttons.add(autoEquipArmorBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(ID_DISPLAY_TOOLTIP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip), I18n.format("invtweaks.settings.displaytooltip.tooltip"));
-        controlList.add(displayTooltipBtn);
+        InvTweaksGuiTooltipButton serverAssistBtn = new InvTweaksGuiTooltipButton(ID_SERVER_ASSIST, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist), I18n.format("invtweaks.settings.advanced.serverassist.tooltip"));
+        buttons.add(serverAssistBtn);
+
+        moveToButtonCoords(i, p);
+        InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(ID_DISPLAY_TOOLTIP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip), I18n.format("invtweaks.settings.displaytooltip.tooltip"));
+        buttons.add(displayTooltipBtn);
 
         // Check if links to files are supported, if not disable the buttons
         if(!Desktop.isDesktopSupported()) {
-            controlList.stream().forEach(button -> {
-                if(button.id == ID_EDITSHORTCUTS) {
-                    button.enabled = false;
+            buttons.forEach(button -> {
+                if((button instanceof InvTweaksGuiBaseButton)) {
+                    InvTweaksGuiBaseButton baseButton = (InvTweaksGuiBaseButton) button;
+                    if(baseButton.id == ID_EDITSHORTCUTS) {
+                        baseButton.active = false;
+                    }
                 }
             });
         }
-
-        // Save control list
-        buttonList = controlList;
-
     }
 
     @Override
-    public void drawScreen(int i, int j, float f) {
-        super.drawScreen(i, j, f);
-
+    public void render(int i, int j, float f) {
+        super.render(i, j, f);
         int x = width / 2;
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.pvpwarning.pt1"), x, 40, 0x999999);
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.settings.pvpwarning.pt2"), x, 50, 0x999999);
     }
 
     @Override
-    protected void actionPerformed(@NotNull Button guibutton) {
+    protected void actionPerformed(@NotNull Button guiButton) {
+        if(!(guiButton instanceof InvTweaksGuiBaseButton)) {
+            return;
+        }
 
         // GuiButton
-        switch(guibutton.id) {
+        switch(((InvTweaksGuiBaseButton) guiButton).id) {
 
             // Toggle tooltip display.
             case ID_DISPLAY_TOOLTIP:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip);
                 break;
 
             // Toggle auto-refill sound
             case ID_SORT_ON_PICKUP:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup);
                 break;
 
             // Toggle shortcuts
             case ID_AUTO_EQUIP_ARMOR:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor);
                 break;
 
             // Toggle sounds
             case ID_ENABLE_SOUNDS:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds);
                 break;
 
             // Toggle chest buttons
             case ID_CHESTS_BUTTONS:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons);
                 break;
 
             // Toggle server assistance
             case ID_SERVER_ASSIST:
-                toggleBooleanButton(guibutton, InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist);
+                toggleBooleanButton(guiButton, InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist);
                 InvTweaksMod.proxy.setServerAssistEnabled(!InvTweaks.getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP).equals(InvTweaksConfig.VALUE_FALSE));
                 break;
 
@@ -162,7 +155,7 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
 
             // Back to main settings screen
             case ID_DONE:
-                obf.displayGuiScreen(new InvTweaksGuiSettings(mc, parentScreen, config));
+                obf.displayGuiScreen(new InvTweaksGuiSettings(minecraft, parentScreen, config));
 
         }
 

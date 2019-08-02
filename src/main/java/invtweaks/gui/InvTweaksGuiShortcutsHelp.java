@@ -1,15 +1,16 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaksConfig;
+import invtweaks.InvTweaksObfuscation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.fml.client.config.IArrayEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
-
-import java.util.LinkedList;
-import java.util.List;
 
 
 public class InvTweaksGuiShortcutsHelp extends Screen {
@@ -21,21 +22,19 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
     private InvTweaksConfig config;
 
     public InvTweaksGuiShortcutsHelp(Minecraft mc_, Screen parentScreen_, InvTweaksConfig config_) {
+        super(new StringTextComponent(I18n.format("invtweaks.help.shortcuts.title")));
         obf = new InvTweaksObfuscation(mc_);
         parentScreen = parentScreen_;
         config = config_;
     }
 
+    // TODO initGui
     public void initGui() {
-        // Create Done button
-        @NotNull List<Button> controlList = new LinkedList<>();
-        controlList.add(new Button(ID_DONE, width / 2 - 100, height / 6 + 168, "Done"));
-        buttonList = controlList;
+        buttons.add(new InvTweaksGuiBaseButton(ID_DONE, width / 2 - 100, height / 6 + 168, width, height, "Done"));
     }
 
     @Override
-    public void drawScreen(int i, int j, float f) {
-
+    public void render(int i, int j, float f) {
         // Note: 0x0000EEFF = blue color (currently unused)
 
         renderBackground();
@@ -73,18 +72,17 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
         String sortKeyName = getKeyName(config.getSortKeyCode(), "(Sort Key)");
         drawShortcutLine(I18n.format("invtweaks.help.shortcuts.selectconfig"), "0-9 + " + sortKeyName, 0x0088FFFF, y);
 
-        super.drawScreen(i, j, f);
+        super.render(i, j, f);
     }
 
-    protected void actionPerformed(@NotNull Button guibutton) {
+    protected void actionPerformed(@NotNull Button guiButton) {
         // GuiButton
-        switch(guibutton.id) {
-            case ID_DONE:
-                obf.displayGuiScreen(parentScreen);
-                break;
+        if(guiButton instanceof InvTweaksGuiBaseButton && ((InvTweaksGuiBaseButton) guiButton).id == ID_DONE) {
+            obf.displayGuiScreen(parentScreen);
         }
     }
 
+    // TODO keyTyped
     protected void keyTyped(char c, int keyCode) {
         if(keyCode == Keyboard.KEY_ESCAPE) {
             obf.displayGuiScreen(parentScreen);
@@ -101,6 +99,7 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
         }
     }
 
+    // TODO rewrite this keyName stuff
     protected String getKeyName(int keyCode, String defaultValue) {
         try {
             return Keyboard.getKeyName(keyCode);

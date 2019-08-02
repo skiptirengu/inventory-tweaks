@@ -1,5 +1,6 @@
-package invtweaks;
+package invtweaks.gui;
 
+import invtweaks.InvTweaksConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.screen.Screen;
@@ -17,8 +18,8 @@ public class InvTweaksGuiModNotWorking extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    public void drawScreen(int i, int j, float f) {
-        super.drawScreen(i, j, f);
+    public void render(int i, int j, float f) {
+        super.render(i, j, f);
 
         int x = width / 2;
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.help.bugsorting.pt1"), x, 80, 0xBBBBBB);
