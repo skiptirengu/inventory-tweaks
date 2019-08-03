@@ -1,6 +1,7 @@
 package invtweaks;
 
 import invtweaks.api.container.ContainerSection;
+import invtweaks.gui.InvTweaksGuiBaseButton;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -132,7 +133,7 @@ public class InvTweaksObfuscation {
         double[] xPos = new double[1];
         double[] yPos = new double[1];
         GLFW.glfwGetCursorPos(guiContainer.getMinecraft().mainWindow.getHandle(), xPos, yPos);
-        return guiContainer.height - ((int) yPos[1] * guiContainer.height) / getDisplayHeight() - 1;
+        return guiContainer.height - ((int) yPos[0] * guiContainer.height) / getDisplayHeight() - 1;
     }
 
     @Contract("!null->_")
@@ -165,7 +166,8 @@ public class InvTweaksObfuscation {
     @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isValidInventory(Container container) {
         // This method gets replaced by the transformer with "return container.invtweaks$validInventory()"
-        return false;
+        // TODO set to true just for test purposes
+        return true;
     }
 
     @Contract("!null->_")
@@ -195,7 +197,7 @@ public class InvTweaksObfuscation {
     }
 
     public static boolean isGuiButton(@Nullable Object o) { // GuiButton
-        return o != null && o instanceof Button;
+        return o instanceof InvTweaksGuiBaseButton;
     }
 
     // FontRenderer members

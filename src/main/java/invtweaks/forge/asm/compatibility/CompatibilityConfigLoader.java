@@ -1,8 +1,8 @@
+/*
 package invtweaks.forge.asm.compatibility;
 
 import org.jetbrains.annotations.NotNull;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
@@ -29,7 +29,8 @@ public class CompatibilityConfigLoader extends DefaultHandler {
         return config;
     }
 
-    /**
+    */
+/**
      * Receive notification of the start of an element.
      *
      * @param uri        The Namespace URI, or the empty string if the
@@ -43,12 +44,11 @@ public class CompatibilityConfigLoader extends DefaultHandler {
      * @param attributes The attributes attached to the element.  If
      *                   there are no attributes, it shall be an empty
      *                   Attributes object.
-     * @throws org.xml.sax.SAXException Any SAX exception, possibly
-     *                                  wrapping another exception.
      * @see org.xml.sax.ContentHandler#startElement
-     */
+     *//*
+
     @Override
-    public void startElement(String uri, String localName, String qName, @NotNull Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName, String qName, @NotNull Attributes attributes) {
         if("chest".equals(qName) || "inventory".equals(qName)) {
             @NotNull ContainerInfo info = new ContainerInfo();
             String className = attributes.getValue("class");
@@ -75,4 +75,4 @@ public class CompatibilityConfigLoader extends DefaultHandler {
             config.put(className, info);
         }
     }
-}
+}*/

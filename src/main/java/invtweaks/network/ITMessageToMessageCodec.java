@@ -1,3 +1,4 @@
+/*
 package invtweaks.network;
 
 import invtweaks.InvTweaksConst;
@@ -27,3 +28,4 @@ public class ITMessageToMessageCodec extends FMLIndexedMessageToMessageCodec<ITP
         target.readBytes(source);
     }
 }
+*/

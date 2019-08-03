@@ -27,7 +27,6 @@ public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
         useCustomTexture = useCustomTexture_;
     }
 
-    // TODO check this bad boi
     @Override
     public void renderButton(int mouseX, int mouseY, float partialTicks) {
         super.renderButton(mouseX, mouseY, partialTicks);

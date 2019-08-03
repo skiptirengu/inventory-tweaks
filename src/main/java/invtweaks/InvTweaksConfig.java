@@ -2,6 +2,7 @@ package invtweaks;
 
 import invtweaks.api.IItemTreeItem;
 import invtweaks.forge.ClientProxy;
+import invtweaks.forge.InvTweaksModConfig;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,9 +104,10 @@ public class InvTweaksConfig {
             // Reset all
             reset();
 
+            // InvTweaksModConfig.init(InvTweaksConst.CONFIG_PROPS_FILE);
             // Load properties
-            loadProperties();
-            saveProperties(); // Needed to append non-saved properties to the file
+            // loadProperties();
+            // saveProperties(); // Needed to append non-saved properties to the file
 
             if(tree != null) {
                 MinecraftForge.EVENT_BUS.unregister(tree);
@@ -358,12 +360,12 @@ public class InvTweaksConfig {
         //properties.put(PROP_ENABLE_CONTAINER_MIRRORING, VALUE_FALSE);
         properties.put(PROP_INVERT_TOOL_DAMAGE, VALUE_TRUE);
 
-        properties.put(PROP_SHORTCUT_ALL_ITEMS, "LCONTROL+LSHIFT, RCONTROL+RSHIFT");
+        properties.put(PROP_SHORTCUT_ALL_ITEMS, "LEFT_CONTROL+LEFT_SHIFT, RIGHT_CONTROL+RIGHT_SHIFT");
         properties.put(PROP_SHORTCUT_EVERYTHING, "SPACE");
-        properties.put(PROP_SHORTCUT_ONE_ITEM, "LCONTROL, RCONTROL");
+        properties.put(PROP_SHORTCUT_ONE_ITEM, "LEFT_CONTROL, RIGHT_CONTROL");
         properties.put(PROP_SHORTCUT_UP, "UP");
         properties.put(PROP_SHORTCUT_DOWN, "DOWN");
-        properties.put(PROP_SHORTCUT_DROP, "LALT, RALT");
+        properties.put(PROP_SHORTCUT_DROP, "LEFT_ALT, RIGHT_ALT");
         properties.put(PROP_TOOLTIP_PATH, VALUE_FALSE);
 
         properties.put(PROP_VERSION, InvTweaksConst.MOD_VERSION.split(" ")[0]);

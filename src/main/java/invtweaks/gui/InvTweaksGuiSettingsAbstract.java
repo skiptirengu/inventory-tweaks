@@ -7,10 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * The inventory and chest settings menu.
@@ -41,12 +42,11 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
         config = config_;
     }
 
-    // TODO initGui Stuff
     @Override
-    public void initGui() {
+    protected void init() {
         @NotNull InvTweaksGuiPoint p = new InvTweaksGuiPoint();
         moveToButtonCoords(1, p);
-        buttons.add(new InvTweaksGuiBaseButton(ID_DONE, p.getX() + 55, height / 6 + 168, LABEL_DONE)); // GuiButton
+        addButton(new InvTweaksGuiBaseButton(ID_DONE, p.getX() + 55, height / 6 + 168, LABEL_DONE, this::actionPerformed)); // GuiButton
     }
 
     @Override
@@ -56,19 +56,23 @@ public abstract class InvTweaksGuiSettingsAbstract extends Screen {
         super.render(i, j, f);
     }
 
-    @Override
-    protected void actionPerformed(@NotNull Button guibutton) {
-        // GuiButton
-        if(guibutton.id == ID_DONE) {
-            obf.displayGuiScreen(parentScreen);
+    protected void actionPerformed(@NotNull Button guiButton) {
+        if(guiButton instanceof InvTweaksGuiBaseButton) {
+            InvTweaksGuiBaseButton baseButton = (InvTweaksGuiBaseButton) guiButton;
+            // GuiButton
+            if(baseButton.id == ID_DONE) {
+                obf.displayGuiScreen(parentScreen);
+            }
         }
     }
 
     @Override
-    protected void keyTyped(char c, int keyCode) {
-        if(keyCode == Keyboard.KEY_ESCAPE) {
+    public boolean keyPressed(int key1, int key2, int key3) {
+        boolean ret = super.keyPressed(key1, key2, key3);
+        if(key1 == GLFW.GLFW_KEY_ESCAPE) {
             obf.displayGuiScreen(parentScreen);
         }
+        return ret;
     }
 
     protected void moveToButtonCoords(int buttonOrder, @NotNull InvTweaksGuiPoint p) {

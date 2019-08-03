@@ -148,7 +148,7 @@ public class InvTweaksItemTreeLoader extends DefaultHandler {
             }
             tree.addItem(categoryStack.getLast(), new InvTweaksItemTreeItem(name, id, damage, extraData, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name));
         } else if(oreDictNameAttr != null) {
-            tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
+            // tree.registerOre(categoryStack.getLast(), name, oreDictNameAttr, getNextItemOrder(lastOrder), String.join("\\", categoryStack) + "\\" + name);
         } else if(className != null) {
             String extraDataAttr = attributes.getValue(ATTR_DATA);
             @Nullable CompoundNBT extraData = null;

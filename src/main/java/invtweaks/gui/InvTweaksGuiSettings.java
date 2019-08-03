@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.net.URL;
-import java.util.List;
 
 /**
  * The inventory and chest settings menu.
@@ -56,62 +55,56 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
-        List<Button> controlList = buttonList;
-        @NotNull Point p = new Point();
+        @NotNull InvTweaksGuiPoint p = new InvTweaksGuiPoint();
         int i = 0;
 
         // Create large buttons
-
         moveToButtonCoords(1, p);
-        controlList.add(new Button(ID_EDITRULES, p.getX() + 55, height / 6 + 96, I18n.format("invtweaks.settings.rulesfile")));
-        controlList.add(new Button(ID_HELP, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.onlinehelp")));
+        addButton(new InvTweaksGuiBaseButton(ID_EDITRULES, p.getX() + 55, height / 6 + 96, I18n.format("invtweaks.settings.rulesfile"), this::actionPerformed));
+        addButton(new InvTweaksGuiBaseButton(ID_HELP, p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.onlinehelp"), this::actionPerformed));
 
         moveToButtonCoords(11, p);
-        controlList.add(new Button(ID_EDITTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.treefile")));
+        addButton(new InvTweaksGuiBaseButton(ID_EDITTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.treefile"), this::actionPerformed));
         moveToButtonCoords(10, p);
-        controlList.add(new Button(ID_MODDEDTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.moddedtreefile")));
+        addButton(new InvTweaksGuiBaseButton(ID_MODDEDTREE, p.getX(), p.getY(), 150, 20, I18n.format("invtweaks.settings.moddedtreefile"), this::actionPerformed));
 
 
         // Create settings buttons
+        moveToButtonCoords(i++, p);
+        addButton(new InvTweaksGuiTooltipButton(ID_SHORTCUTS_HELP, p.getX() + 130, p.getY(), 20, 20, "?", "Shortcuts help", this::actionPerformed));
+        @NotNull InvTweaksGuiTooltipButton shortcutsBtn = new InvTweaksGuiTooltipButton(ID_SHORTCUTS, p.getX(), p.getY(), 130, 20, computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts), I18n.format("invtweaks.settings.shortcuts.tooltip"), this::actionPerformed);
+        addButton(shortcutsBtn);
 
         moveToButtonCoords(i++, p);
-        controlList.add(new InvTweaksGuiTooltipButton(ID_SHORTCUTS_HELP, p.getX() + 130, p.getY(), 20, 20, "?", "Shortcuts help"));
-        @NotNull InvTweaksGuiTooltipButton shortcutsBtn = new InvTweaksGuiTooltipButton(ID_SHORTCUTS, p.getX(), p.getY(), 130, 20, computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SHORTCUTS, labelShortcuts), I18n.format("invtweaks.settings.shortcuts.tooltip"));
-        controlList.add(shortcutsBtn);
+        @NotNull InvTweaksGuiTooltipButton beforeBreakBtn = new InvTweaksGuiTooltipButton(ID_BEFORE_BREAK, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK, labelAutoRefillBeforeBreak), I18n.format("invtweaks.settings.beforebreak.tooltip"), this::actionPerformed);
+        addButton(beforeBreakBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton beforeBreakBtn = new InvTweaksGuiTooltipButton(ID_BEFORE_BREAK, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_AUTO_REFILL_BEFORE_BREAK, labelAutoRefillBeforeBreak), I18n.format("invtweaks.settings.beforebreak.tooltip"));
-        controlList.add(beforeBreakBtn);
+        @NotNull InvTweaksGuiTooltipButton autoRefillBtn = new InvTweaksGuiTooltipButton(ID_AUTO_REFILL, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_REFILL, labelAutoRefill), I18n.format("invtweaks.settings.autorefill.tooltip"), this::actionPerformed);
+        addButton(autoRefillBtn);
 
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton autoRefillBtn = new InvTweaksGuiTooltipButton(ID_AUTO_REFILL, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_REFILL, labelAutoRefill), I18n.format("invtweaks.settings.autorefill.tooltip"));
-        controlList.add(autoRefillBtn);
+        addButton(new InvTweaksGuiTooltipButton(ID_MORE_OPTIONS, p.getX(), p.getY(), labelMoreOptions, I18n.format("invtweaks.settings.moreoptions.tooltip"), this::actionPerformed));
 
-        moveToButtonCoords(i++, p);
-        controlList.add(new InvTweaksGuiTooltipButton(ID_MORE_OPTIONS, p.getX(), p.getY(), labelMoreOptions, I18n.format("invtweaks.settings.moreoptions.tooltip")));
-
-        controlList.add(new InvTweaksGuiTooltipButton(ID_BUG_SORTING, 5, this.height - 20, 100, 20, labelBugSorting, null, false));
+        addButton(new InvTweaksGuiTooltipButton(ID_BUG_SORTING, 5, this.height - 20, 100, 20, labelBugSorting, null, false, this::actionPerformed));
 
         //noinspection UnusedAssignment
         moveToButtonCoords(i++, p);
-        @NotNull InvTweaksGuiTooltipButton middleClickBtn = new InvTweaksGuiTooltipButton(ID_MIDDLE_CLICK, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK, labelMiddleClick), I18n.format("invtweaks.settings.middleclick.tooltip"));
-        controlList.add(middleClickBtn);
+        @NotNull InvTweaksGuiTooltipButton middleClickBtn = new InvTweaksGuiTooltipButton(ID_MIDDLE_CLICK, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_MIDDLE_CLICK, labelMiddleClick), I18n.format("invtweaks.settings.middleclick.tooltip"), this::actionPerformed);
+        addButton(middleClickBtn);
 
         // Check if links to files are supported, if not disable the buttons
         if(!Desktop.isDesktopSupported()) {
-            controlList.stream().filter(InvTweaksObfuscation::isGuiButton).forEach(o -> {
-                if(o.id >= ID_EDITRULES && o.id <= ID_HELP) {
-                    o.enabled = false;
+            buttons.stream().filter(InvTweaksObfuscation::isGuiButton).forEach(button -> {
+                InvTweaksGuiBaseButton baseButton = (InvTweaksGuiBaseButton) button;
+                if(baseButton.id >= ID_EDITRULES && baseButton.id <= ID_HELP) {
+                    baseButton.active = false;
                 }
             });
         }
-
-        // Save control list
-        buttonList = controlList;
-
     }
 
     @Override
@@ -193,8 +186,6 @@ public class InvTweaksGuiSettings extends InvTweaksGuiSettingsAbstract {
                     InvTweaks.logInGameErrorStatic("invtweaks.settings.onlinehelp.error", e);
                 }
                 break;
-
         }
-
     }
 }

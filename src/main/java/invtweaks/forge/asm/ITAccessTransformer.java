@@ -1,3 +1,4 @@
+/*
 package invtweaks.forge.asm;
 
 import net.minecraftforge.fml.common.asm.transformers.AccessTransformer;
@@ -9,3 +10,4 @@ public class ITAccessTransformer extends AccessTransformer {
         super("invtweaks_at.cfg");
     }
 }
+*/

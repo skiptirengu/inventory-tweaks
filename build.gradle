@@ -1,314 +1,134 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
 
-plugins {
-    id "com.matthewprenger.cursegradle" version "1.0.9"
-}
-
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'idea'
 
-dependencies {
-    minecraft([
-		group  : "${project.forge_group}",
-		name   : "forge",
-		version: "${project.minecraft_version}-${project.forge_version}"
-	])
-    compile 'org.jetbrains:annotations:13.0'
-}
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
-if(!hasProperty('mod_version')) {
-    mod_version = 'UNKNOWN'
-}
-
-def getGitCommitHash = { ->
-    try {
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'rev-parse', '--short', 'HEAD'
-            standardOutput = stdout
-        }
-        return stdout.toString().trim()
-    } catch(ignored) {
-        return null;
-    }
-}
-
-def getGitDirtyIndex = { ->
-    try {
-        return exec {
-            commandLine 'git', 'diff-index', '--quiet', '--cached', 'HEAD'
-            ignoreExitValue = true
-        }.exitValue == 1
-    } catch(ignored) {
-        return false;
-    }
-}
-
-def getGitDirtyFiles = { ->
-    try {
-        return exec {
-            commandLine 'git', 'diff-files', '--quiet'
-            ignoreExitValue = true
-        }.exitValue == 1
-    } catch(ignored) {
-        return false;
-    }
-}
-
-def getGitChangelog = { ->
-    try {
-        def stdout = new ByteArrayOutputStream()
-        def gitHash = System.getenv("GIT_COMMIT")
-        def gitPrevHash = System.getenv("GIT_PREVIOUS_COMMIT")
-        def travisRange = System.getenv("TRAVIS_COMMIT_RANGE")
-        if(gitHash && gitPrevHash) {
-            exec {
-                commandLine 'git', 'log', '--pretty=tformat:%s - %aN', '' + gitPrevHash + '...' + gitHash
-                standardOutput = stdout
-            }
-            return stdout.toString().trim()
-        } else if(travisRange) {
-            exec {
-                commandLine 'git', 'log', '--pretty=tformat:%s - %aN', '' + travisRange
-                standardOutput = stdout
-            }
-            return stdout.toString().trim()
-        } else {
-            return "";
-        }
-    } catch(ignored) {
-        return "";
-    }
-}
-
-ext.git_version = getGitCommitHash()
-ext.git_dirty = getGitDirtyIndex() || getGitDirtyFiles()
-
-ext.build_number = System.getenv('BUILD_NUMBER')
-if(!build_number) {
-    ext.build_number = System.getenv('TRAVIS_BUILD_NUMBER')
-}
-
-ext.git_separator = '.'
-if(mod_version.contains('+')) {
-    if(build_number) {
-        version = mod_version + '.' + build_number
-    } else {
-        version = mod_version
-    }
-
-    ext.internal_version = version
-} else {
-    version = mod_version
-
-    ext.internal_version = version
-    if(build_number) {
-        ext.internal_version += "+release." + build_number
-    } else {
-        ext.git_separator = '+'
-    }
-}
-
-if(git_version) {
-    ext.internal_version += git_separator + git_version
-    if(git_dirty) {
-        ext.internal_version += '.dirty'
-    }
-} else {
-    ext.internal_version = version
-}
-
+version = mod_version
 group = mod_group
 archivesBaseName = mod_name
 
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
 minecraft {
+    // The mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   Snapshot are built nightly.
+    // stable_#            Stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: mcp_channel, version: mcp_version
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
     runs {
-        client = {
+        client {
             workingDirectory project.file('run')
 
-            // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
-            // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
 
-            source sourceSets.main
-        }
-        server = {
-            workingDirectory project.file('run')
-
-            // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
-            
-            source sourceSets.main
-        }
-    }
-
-    // TODO: Replace this somehow
-    //replace '@VERSION@', project.internal_version
-    //replaceIn 'InvTweaksConst.java'
-}
-// TODO: Find out what replaced this
-/*
-if(hasProperty('mod_core_plugin')) {
-    minecraft.coreMod = mod_core_plugin
-
-    jar {
-        manifest {
-            attributes 'FMLCorePlugin': mod_core_plugin, 'FMLCorePluginContainsFMLMod': mod_core_hasfmlmod
-        }
-    }
-}
-*/
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-compileJava {
-    options.debug = true
-    options.debugOptions.debugLevel = 'source,lines,vars'
-}
-
-
-ext.keystore = System.getenv("KEYSTORE")
-ext.keystorePass = System.getenv("KEYSTORE_PASSWORD")
-ext.keyPass = System.getenv("KEY_PASSWORD")
-ext.keyAlias = System.getenv("KEY_ALIAS")
-
-// TODO: ?? Find out correct dependsOn:
-task signJar(type: Exec, dependsOn: jar) {
-    onlyIf {
-        project.keystore && project.keystorePass && project.keyPass && project.keyAlias
-    }
-
-    commandLine "jarsigner", "-keystore", keystore, "-storepass", keystorePass, "-keypass", keyPass,
-            "-tsa", "http://timestamp.comodoca.com", "-tsadigestalg", "SHA-512",
-            "-sigalg", "SHA512withECDSA", "-digestalg", "SHA-512", jar.archivePath, keyAlias
-}
-
-build.dependsOn signJar
-
-task apiJar(type: Jar) {
-    onlyIf { project.hasProperty('api_filter') }
-    dependsOn classes
-
-    from sourceSets.main.allJava
-    from sourceSets.main.output
-    include api_filter
-
-    classifier 'api'
-}
-
-task deobfJar(type: Jar) {
-    dependsOn classes
-
-    from sourceSets.main.output
-
-    if(project.hasProperty('mod_core_plugin')) {
-        manifest {
-            attributes 'FMLCorePlugin': mod_core_plugin, 'FMLCorePluginContainsFMLMod': mod_core_hasfmlmod
-        }
-    }
-
-    classifier 'deobf'
-}
-
-
-artifacts {
-    archives apiJar
-    archives deobfJar
-}
-
-
-ext.curseKey = System.getenv("CURSE_API_KEY")
-if(mod_version.endsWith("dev")) {
-    ext.curseType = 'alpha'
-    ext.curseVersion = version
-} else if(mod_version.endsWith("beta")) {
-    ext.curseType = 'beta'
-    ext.curseVersion = version
-} else {
-    ext.curseType = 'release'
-    ext.curseVersion = mod_version
-}
-
-tasks.curseforge.onlyIf { curseKey }
-tasks.curseforge.dependsOn signJar, apiJar, deobfJar
-
-if(hasProperty('curse_extra_versions')) {
-    ext.curseExtraVersions = curse_extra_versions.tokenize(',')
-}
-
-if(curseKey && hasProperty('curse_id')) {
-    curseforge {
-        apiKey = curseKey
-
-        project {
-            id = curse_id
-            changelog = getGitChangelog()
-            releaseType = curseType
-            addGameVersion minecraft_version
-
-            if(hasProperty('curseExtraVersions')) {
-                for(version in curseExtraVersions) {
-                    addGameVersion version
+            mods {
+                inventorytweaks {
+                    source sourceSets.main
                 }
             }
-            addGameVersion 'Java 8'
+        }
 
-            mainArtifact(jar) {
-                displayName = "$curse_filename $curseVersion"
-            }
+        /*server {
+            workingDirectory project.file('run')
 
-            addArtifact(apiJar) {
-                displayName = "$curse_filename API $curseVersion"
-            }
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
-            addArtifact(deobfJar) {
-                displayName = "$curse_filename Deobfuscated $curseVersion"
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                inventorytweaks {
+                    source sourceSets.main
+                }
             }
+        }*/
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft 'net.minecraftforge:forge:1.14.4-28.0.1'
+    compile 'org.jetbrains:annotations:13.0'
+
+    // You may put jars on which you depend on in ./libs or you may define them like so..
+    // compile "some.group:artifact:version:classifier"
+    // compile "some.group:artifact:version"
+
+    // Real examples
+    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // These dependencies get remapped to your current MCP mappings
+    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // For more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+}
+
+// Example for how to get properties into the manifest for reading by the runtime..
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": "Inventory Tweaks",
+                "Specification-Vendor": "inventorytweaks",
+                "Specification-Version": "1.7", // We are version 1 of ourselves
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${project.version}",
+                "Implementation-Vendor" : "inventorytweaks",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+// Example configuration to allow publishing using the maven-publish task
+// we define a custom artifact that is sourced from the reobfJar output task
+// and then declare that to be published
+// Note you'll need to add a repository here
+def reobfFile = file("$buildDir/reobfJar/output.jar")
+def reobfArtifact = artifacts.add('default', reobfFile) {
+    type 'jar'
+    builtBy 'reobfJar'
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact reobfArtifact
         }
     }
-}
-
-processResources {
-    inputs.property 'version', internal_version
-    inputs.property 'mcversion', minecraft_version
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude '**/*.png'
-        exclude '**/*_at.cfg'
-        exclude '**/*itemtree.xml'
-
-        expand version: internal_version, mcversion: minecraft_version
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        include '**/*.png'
-        include '**/*_at.cfg'
-        include '**/*itemtree.xml'
-    }
-}
-
-idea {
-    module {
-        inheritOutputDirs = true
-    }
-
-    project {
-        vcs = 'Git'
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
     }
 }

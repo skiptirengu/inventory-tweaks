@@ -4,7 +4,10 @@ import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +15,8 @@ import java.util.Map;
  * @author Jimeo Wan
  */
 public class InvTweaksShortcutMapping {
+
+    private static Map<String, Integer> GLFW_KEYMAP;
 
     @NotNull
     private List<Integer> keysToHold = new ArrayList<>();
@@ -21,13 +26,35 @@ public class InvTweaksShortcutMapping {
     }
 
     public InvTweaksShortcutMapping(@NotNull String... keyNames) {
+        mapKeysIfNotMapped();
+
         for(String keyName : keyNames) {
             // TODO Fix this
             // - Accept both KEY_### and ###, in case someone
             //   takes the LWJGL Javadoc at face value
             // - Accept LALT & RALT instead of LMENU & RMENU
-            // keyName = keyName.trim().replace("KEY_", "").replace("ALT", "MENU");
-            // keysToHold.add(Keyboard.getKeyIndex(keyName));
+            keyName = keyName.trim();
+            keysToHold.add(GLFW_KEYMAP.get(keyName));
+        }
+    }
+
+    private static void mapKeysIfNotMapped() {
+        // TODO PROBABLY WON'T WORK
+        if(GLFW_KEYMAP != null) { return; }
+
+        GLFW_KEYMAP = new HashMap<>();
+        Field[] fields = GLFW.class.getFields();
+
+        for(Field field : fields) {
+            final int modifiers = field.getModifiers();
+            String fieldName = field.getName();
+            if(field.getType().equals(int.class) && Modifier.isPublic(modifiers) && Modifier.isFinal(modifiers) && Modifier.isStatic(modifiers) && fieldName.startsWith("GLFW_KEY_")) {
+                try {
+                    GLFW_KEYMAP.put(fieldName.replace("GLFW_KEY_", ""), field.getInt(null));
+                } catch(IllegalAccessException e) {
+                    // TODO log message
+                }
+            }
         }
     }
 

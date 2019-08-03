@@ -4,19 +4,13 @@ package invtweaks;
 import invtweaks.api.IItemTree;
 import invtweaks.api.IItemTreeCategory;
 import invtweaks.api.IItemTreeItem;
-import net.minecraft.item.*;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.living.PotionEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -320,7 +314,8 @@ public class InvTweaksItemTree implements IItemTree {
         return lastTreeOrder;
     }
 
-    @Override
+    // TODO I have absolutely no idea what to do with this
+    /*@Override
     public void registerOre(String category, String name, String oreName, int order, String path) {
         for(@Nullable ItemStack i : OreDictionary.getOres(oreName, false)) {
             if(i != null) {
@@ -345,7 +340,7 @@ public class InvTweaksItemTree implements IItemTree {
                 log.warn(String.format("An OreDictionary entry for %s is null", ev.getName()));
             }
         });
-    }
+    }*/
 
     public void registerClass(String category, String name, String className, CompoundNBT extraData, int order, String path) {
         if(allGameItems.size() == 0) {
@@ -359,10 +354,10 @@ public class InvTweaksItemTree implements IItemTree {
                 boolean doIt = true;
                 if(extraData != null) {
                     if(doIt && extraData.contains("toolclass")) {
-                        String tclass = extraData.getString("toolclass");
+                        ToolType toolType = ToolType.get(extraData.getString("toolclass"));
                         //We don't want the set, we want the one we will use during comparisons.
-                        //An empty toolclass will match non-tools.                        
-                        doIt = tclass.equals(InvTweaks.getToolClass(stack, item));
+                        //An empty toolclass will match non-tools.
+                        doIt = toolType.equals(InvTweaks.getToolType(stack, item));
                     }
                     if(doIt && extraData.contains("armortype") && item instanceof ArmorItem) {
                         ArmorItem armor = (ArmorItem) item;

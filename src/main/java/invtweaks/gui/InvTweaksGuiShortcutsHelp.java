@@ -7,10 +7,9 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.client.config.IArrayEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 
 public class InvTweaksGuiShortcutsHelp extends Screen {
@@ -30,7 +29,7 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
 
     // TODO initGui
     public void initGui() {
-        buttons.add(new InvTweaksGuiBaseButton(ID_DONE, width / 2 - 100, height / 6 + 168, width, height, "Done"));
+        addButton(new InvTweaksGuiBaseButton(ID_DONE, width / 2 - 100, height / 6 + 168, width, height, "Done"));
     }
 
     @Override
@@ -82,11 +81,13 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
         }
     }
 
-    // TODO keyTyped
-    protected void keyTyped(char c, int keyCode) {
-        if(keyCode == Keyboard.KEY_ESCAPE) {
+    @Override
+    public boolean keyPressed(int key1, int key2, int key3) {
+        boolean ret = super.keyPressed(key1, key2, key3);
+        if(key1 == GLFW.GLFW_KEY_ESCAPE) {
             obf.displayGuiScreen(parentScreen);
         }
+        return ret;
     }
 
     private String buildUpOrDownLabel(@NotNull String shortcutProp, int keyCode, String defaultKeyName) {
@@ -99,10 +100,9 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
         }
     }
 
-    // TODO rewrite this keyName stuff
-    protected String getKeyName(int keyCode, String defaultValue) {
+    private String getKeyName(int keyCode, String defaultValue) {
         try {
-            return Keyboard.getKeyName(keyCode);
+            return GLFW.glfwGetKeyName(keyCode, 0);
         } catch(Exception e) {
             return defaultValue;
         }

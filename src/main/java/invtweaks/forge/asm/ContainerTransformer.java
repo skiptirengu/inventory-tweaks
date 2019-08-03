@@ -1,3 +1,4 @@
+/*
 package invtweaks.forge.asm;
 
 import com.google.common.collect.Lists;
@@ -47,12 +48,14 @@ public class ContainerTransformer implements IClassTransformer {
         lateInit();
     }
 
-    /**
+    */
+/**
      * Alter class to contain information contained by ContainerInfo
      *
      * @param clazz Class to alter
      * @param info  Information used to alter class
-     */
+     *//*
+
     private static void transformContainer(@NotNull ClassNode clazz, @NotNull ContainerInfo info) {
         ASMHelper.generateBooleanMethodConst(clazz, SHOW_BUTTONS_METHOD, info.showButtons);
         ASMHelper.generateBooleanMethodConst(clazz, VALID_INVENTORY_METHOD, info.validInventory);
@@ -85,11 +88,13 @@ public class ContainerTransformer implements IClassTransformer {
         }
     }
 
-    /**
+    */
+/**
      * Alter class to contain default implementations of added methods.
      *
      * @param clazz Class to alter
-     */
+     *//*
+
     private static void transformBaseContainer(@NotNull ClassNode clazz) {
         ASMHelper.generateBooleanMethodConst(clazz, SHOW_BUTTONS_METHOD, false);
         ASMHelper.generateBooleanMethodConst(clazz, VALID_INVENTORY_METHOD, false);
@@ -366,3 +371,4 @@ public class ContainerTransformer implements IClassTransformer {
         return bytes;
     }
 }
+*/

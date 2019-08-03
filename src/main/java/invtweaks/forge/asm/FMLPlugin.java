@@ -1,3 +1,4 @@
+/*
 package invtweaks.forge.asm;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
@@ -42,3 +43,4 @@ public class FMLPlugin implements IFMLLoadingPlugin {
         runtimeDeobfEnabled = (Boolean) data.get("runtimeDeobfuscationEnabled");
     }
 }
+*/

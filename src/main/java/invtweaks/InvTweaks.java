@@ -9,8 +9,6 @@ import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.DirectContainerManager;
 import invtweaks.container.IContainerManager;
 import invtweaks.forge.InvTweaksMod;
-import invtweaks.gui.InvTweaksGuiSettingsButton;
-import invtweaks.gui.InvTweaksGuiSortingButton;
 import invtweaks.integration.ItemListChecker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
@@ -18,19 +16,22 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.CraftingScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.*;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
+import net.minecraftforge.common.ToolType;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -139,10 +140,6 @@ public class InvTweaks extends InvTweaksObfuscation {
         return instance;
     }
 
-    public static Minecraft getMinecraftInstance() {
-        return instance.mc;
-    }
-
     @Nullable
     public static InvTweaksConfigManager getConfigManager() {
         if(instance == null) { return null; }
@@ -211,35 +208,15 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
     }
 
-    // TODO rework with tags
-    public static String getToolClass(ItemStack itemStack, Item item) {
-        if(itemStack == null || item == null) { return ""; }
-        Set<String> toolClassSet = item.getToolClasses(itemStack);
-
-        if(toolClassSet.contains("sword")) {
-            //Swords are not "tools".
-            Set<String> newClassSet = new HashSet<String>();
-            for(String toolClass : toolClassSet) { if(toolClass != "sword") { newClassSet.add(toolClass); } }
-            toolClassSet = newClassSet;
+    public static ToolType getToolType(ItemStack itemStack, Item item) {
+        if(itemStack == null || item == null) {
+            return null;
         }
-
-        //Minecraft hoes, shears, and fishing rods don't have tool class names.
-        if(toolClassSet.isEmpty()) {
-            if(item instanceof HoeItem) { return "hoe"; }
-            if(item instanceof ShearsItem) { return "shears"; }
-            if(item instanceof FishingRodItem) { return "fishingrod"; }
-            return "";
+        List<ToolType> toolTypes = InvTweaksToolType.getToolTypes(itemStack);
+        if(toolTypes.isEmpty()) {
+            return null;
         }
-
-        //Get the only thing.
-        if(toolClassSet.size() == 1) { return (String) toolClassSet.toArray()[0]; }
-
-        //We have a preferred type to list tools under, primarily the pickaxe for harvest level.
-        String[] prefOrder = {"pickaxe", "axe", "shovel", "hoe", "shears", "wrench"};
-        for(int i = 0; i < prefOrder.length; i++) { if(toolClassSet.contains(prefOrder[i])) { return prefOrder[i]; } }
-
-        //Whatever happens to be the first thing:
-        return (String) toolClassSet.toArray()[0];
+        return toolTypes.get(0);
     }
 
     public void addScheduledTask(Runnable task) {
@@ -536,23 +513,23 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private int compareTools(ItemStack i, ItemStack j, Item iItem, Item jItem) {
-        String toolClass1 = getToolClass(i, iItem);
-        String toolClass2 = getToolClass(j, jItem);
+        ToolType toolType1 = getToolType(i, iItem);
+        ToolType toolType2 = getToolType(j, jItem);
 
-        if(debugTree) { mostRecentComparison += ", ToolClass (" + toolClass1 + ", " + toolClass2 + ")"; }
-        boolean isTool1 = toolClass1 != "";
-        boolean isTool2 = toolClass2 != "";
+        if(debugTree) { mostRecentComparison += ", ToolClass (" + toolType1 + ", " + toolType2 + ")"; }
+        boolean isTool1 = toolType1 != null;
+        boolean isTool2 = toolType2 != null;
         if(!isTool1 || !isTool2) {
             //This should catch any instances where one of the stacks is null.
             return Boolean.compare(isTool2, isTool1);
         } else {
-            int toolClassComparison = toolClass1.compareTo(toolClass2);
+            int toolClassComparison = InvTweaksToolType.compare(toolType1, toolType2);
             if(toolClassComparison != 0) {
                 return toolClassComparison;
             }
             // If they were the same type, sort with the better harvest level first.
-            int harvestLevel1 = iItem.getHarvestLevel(i, toolClass1, null, null);
-            int harvestLevel2 = jItem.getHarvestLevel(j, toolClass2, null, null);
+            int harvestLevel1 = iItem.getHarvestLevel(i, toolType1, null, null);
+            int harvestLevel2 = jItem.getHarvestLevel(j, toolType2, null, null);
             int toolLevelComparison = harvestLevel2 - harvestLevel1;
             if(debugTree) { mostRecentComparison += ", HarvestLevel (" + harvestLevel1 + ", " + harvestLevel2 + ")"; }
             if(toolLevelComparison != 0) {
@@ -634,37 +611,38 @@ public class InvTweaks extends InvTweaksObfuscation {
             return jEnchs.size() - iEnchs.size();
         }
 
-        int iEnchMaxId = 0, iEnchMaxLvl = 0;
-        int jEnchMaxId = 0, jEnchMaxLvl = 0;
+        EnchantmentType iEnchMaxType = null;
+        EnchantmentType jEnchMaxType = null;
+        int iEnchMaxLvl = 0;
+        int jEnchMaxLvl = 0;
 
-        // TODO: This is really arbitrary but there's not really a good way to do this generically.
         for(@NotNull Map.Entry<Enchantment, Integer> ench : iEnchs.entrySet()) {
-            int enchId = Enchantment.getEnchantmentID(ench.getKey());
+            EnchantmentType enchType = ench.getKey().type;
             if(ench.getValue() > iEnchMaxLvl) {
-                iEnchMaxId = enchId;
+                iEnchMaxType = enchType;
                 iEnchMaxLvl = ench.getValue();
-            } else if(ench.getValue() == iEnchMaxLvl && enchId > iEnchMaxId) {
-                iEnchMaxId = enchId;
+            } else if(iEnchMaxType == null || ench.getValue() == iEnchMaxLvl && enchType.compareTo(iEnchMaxType) > 0) {
+                iEnchMaxType = enchType;
             }
         }
 
         for(@NotNull Map.Entry<Enchantment, Integer> ench : jEnchs.entrySet()) {
-            int enchId = Enchantment.getEnchantmentID(ench.getKey());
+            EnchantmentType enchType = ench.getKey().type;
             if(ench.getValue() > jEnchMaxLvl) {
-                jEnchMaxId = enchId;
+                jEnchMaxType = enchType;
                 jEnchMaxLvl = ench.getValue();
-            } else if(ench.getValue() == jEnchMaxLvl && enchId > jEnchMaxId) {
-                jEnchMaxId = enchId;
+            } else if(jEnchMaxType == null || ench.getValue() == jEnchMaxLvl && enchType.compareTo(jEnchMaxType) > 0) {
+                jEnchMaxType = enchType;
             }
         }
 
-        //The highest enchantment ID, (random actual enchantment.)
-        if(iEnchMaxId != jEnchMaxId) {
+        // The highest enchantment ID, (random actual enchantment.)
+        if(iEnchMaxType != jEnchMaxType) {
             if(debugTree) { mostRecentComparison += ", Highest Enchantment"; }
-            return jEnchMaxId - iEnchMaxId;
+            return jEnchMaxType.compareTo(iEnchMaxType);
         }
 
-        //Highest level if they both have the same coolest enchantment.
+        // Highest level if they both have the same coolest enchantment.
         if(iEnchMaxLvl != jEnchMaxLvl) {
             if(debugTree) { mostRecentComparison += ", Highest Enchantment Level"; }
             return jEnchMaxLvl - iEnchMaxLvl;
@@ -962,6 +940,8 @@ public class InvTweaks extends InvTweaksObfuscation {
                         target = containerMgr.getSlotSection(getSlotNumber(slotAtMousePosition));
                     }
 
+                    boolean crafting = ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT.equals(target);
+
                     if(isValidChest(container)) {
 
                         // Check if the middle click target the chest or the inventory
@@ -986,7 +966,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                             chestAlgorithm = SortingMethod.values()[(chestAlgorithm.ordinal() + 1) % 3];
                             chestAlgorithmClickTimestamp = timestamp;
 
-                        } else if(ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT.equals(target)) {
+                        } else if(crafting) {
                             try {
                                 new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), target, SortingMethod.EVEN_STACKS, (containerMgr.getSize(target) == 9) ? 3 : 2).sort();
                             } catch(Exception e) {
@@ -999,7 +979,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                         }
 
                     } else if(isValidInventory(container)) {
-                        if(ContainerSection.CRAFTING_IN.equals(target) || ContainerSection.CRAFTING_IN_PERSISTENT.equals(target)) {
+                        if(crafting) {
                             // Crafting stacks evening
                             try {
                                 new InvTweaksHandlerSorting(mc, cfgManager.getConfig(), target, SortingMethod.EVEN_STACKS, (containerMgr.getSize(target) == 9) ? 3 : 2).sort();
@@ -1019,15 +999,12 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
     }
 
-
     // NOTE: This *will* only work for vanilla GUIs. Blame Mojang for making it next to impossible to find out generically.
     private boolean hasRecipeButton(@NotNull ContainerScreen guiContainer) {
         if(guiContainer instanceof InventoryScreen) {
             return true;
-        } else if(guiContainer instanceof CraftingScreen) {
-            return true;
         } else {
-            return false;
+            return guiContainer instanceof CraftingScreen;
         }
     }
 
@@ -1046,7 +1023,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     // TODO figure out this dumb button stuff
     private void handleGUILayout(@NotNull ContainerScreen guiContainer) {
-        @Nullable InvTweaksConfig config = cfgManager.getConfig();
+        /*@Nullable InvTweaksConfig config = cfgManager.getConfig();
 
         Container container = guiContainer.getContainer();
 
@@ -1089,9 +1066,9 @@ public class InvTweaks extends InvTweaksObfuscation {
                 int id = InvTweaksConst.JIMEOWAN_ID, x = guiContainer.getGuiLeft() + guiContainer.getXSize() - 16, y = guiContainer.getGuiTop() + 5;
                 // Inventory button
                 if(!isValidChest) {
-                    /*if(hasRecipeButton(guiContainer)) {
+                    *//*if(hasRecipeButton(guiContainer)) {
                         x -= 20;
-                    }*/
+                    }*//*
                     controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id, x, y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
                 }
 
@@ -1106,9 +1083,9 @@ public class InvTweaks extends InvTweaksObfuscation {
                     if(isChestWayTooBig && isItemListVisible) {
                         x -= 20;
                         y += 50;
-                    }/* else if(hasRecipeButton(guiContainer)) {
+                    }*//* else if(hasRecipeButton(guiContainer)) {
                         x -= 20;
-                    }*/
+                    }*//*
 
                     // Settings button
                     controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 1, (isChestWayTooBig) ? y - 3 : y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
@@ -1147,7 +1124,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                 }
 
             }
-        }
+        }*/
 
     }
 
@@ -1185,7 +1162,8 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(sortKeyEnabled && !textboxMode) {
             int keyCode = cfgManager.getConfig().getSortKeyCode();
             if(keyCode > 0) {
-                return GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), keyCode) == 1;
+                boolean isKeyDown = GLFW.glfwGetKey(Minecraft.getInstance().mainWindow.getHandle(), keyCode) == 1;
+                return isKeyDown;
             } else {
                 // TODO WTF?
                 // return Mouse.isButtonDown(100 + keyCode);
@@ -1244,7 +1222,6 @@ public class InvTweaks extends InvTweaksObfuscation {
     private void playClick() {
         if(!cfgManager.getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_SOUNDS).equals(InvTweaksConfig.VALUE_FALSE)) {
             mc.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            // mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
     }
 

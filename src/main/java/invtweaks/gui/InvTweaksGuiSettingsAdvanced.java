@@ -45,8 +45,8 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
         @NotNull InvTweaksGuiPoint p = new InvTweaksGuiPoint();
         int i = 0;
@@ -54,33 +54,34 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
         // Create large buttons
 
         moveToButtonCoords(1, p);
-        buttons.add(new InvTweaksGuiTooltipButton(ID_EDITSHORTCUTS, (int) p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile"), null));
+        addButton(new InvTweaksGuiTooltipButton(ID_EDITSHORTCUTS, (int) p.getX() + 55, height / 6 + 144, I18n.format("invtweaks.settings.advanced.mappingsfile"), null, this::actionPerformed));
 
         // Create settings buttons
 
         i += 2;
         moveToButtonCoords(i++, p);
-        InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(ID_SORT_ON_PICKUP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup), I18n.format("invtweaks.settings.advanced.sortonpickup.tooltip"));
-        buttons.add(sortOnPickupBtn);
+        InvTweaksGuiTooltipButton sortOnPickupBtn = new InvTweaksGuiTooltipButton(ID_SORT_ON_PICKUP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SORTING_ON_PICKUP, labelSortOnPickup), I18n.format("invtweaks.settings.advanced.sortonpickup.tooltip"), this::actionPerformed);
+        addButton(sortOnPickupBtn);
 
         moveToButtonCoords(i++, p);
-        InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(ID_ENABLE_SOUNDS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds), I18n.format("invtweaks.settings.advanced.sounds.tooltip"));
-        buttons.add(enableSoundsBtn);
+        InvTweaksGuiTooltipButton enableSoundsBtn = new InvTweaksGuiTooltipButton(ID_ENABLE_SOUNDS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SOUNDS, labelEnableSounds), I18n.format("invtweaks.settings.advanced.sounds.tooltip"), this::actionPerformed);
+        addButton(enableSoundsBtn);
 
         moveToButtonCoords(i++, p);
-        buttons.add(new InvTweaksGuiTooltipButton(ID_CHESTS_BUTTONS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons), I18n.format("invtweaks.settings.chestbuttons.tooltip")));
+        InvTweaksGuiTooltipButton chestBtn = new InvTweaksGuiTooltipButton(ID_CHESTS_BUTTONS, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS, labelChestButtons), I18n.format("invtweaks.settings.chestbuttons.tooltip"), this::actionPerformed);
+        addButton(chestBtn);
 
         moveToButtonCoords(i++, p);
-        InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(ID_AUTO_EQUIP_ARMOR, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor), I18n.format("invtweaks.settings.advanced.autoequip.tooltip"));
-        buttons.add(autoEquipArmorBtn);
+        InvTweaksGuiTooltipButton autoEquipArmorBtn = new InvTweaksGuiTooltipButton(ID_AUTO_EQUIP_ARMOR, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_AUTO_EQUIP_ARMOR, labelEquipArmor), I18n.format("invtweaks.settings.advanced.autoequip.tooltip"), this::actionPerformed);
+        addButton(autoEquipArmorBtn);
 
         moveToButtonCoords(i++, p);
-        InvTweaksGuiTooltipButton serverAssistBtn = new InvTweaksGuiTooltipButton(ID_SERVER_ASSIST, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist), I18n.format("invtweaks.settings.advanced.serverassist.tooltip"));
-        buttons.add(serverAssistBtn);
+        InvTweaksGuiTooltipButton serverAssistBtn = new InvTweaksGuiTooltipButton(ID_SERVER_ASSIST, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_ENABLE_SERVER_ITEMSWAP, labelServerAssist), I18n.format("invtweaks.settings.advanced.serverassist.tooltip"), this::actionPerformed);
+        addButton(serverAssistBtn);
 
         moveToButtonCoords(i, p);
-        InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(ID_DISPLAY_TOOLTIP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip), I18n.format("invtweaks.settings.displaytooltip.tooltip"));
-        buttons.add(displayTooltipBtn);
+        InvTweaksGuiTooltipButton displayTooltipBtn = new InvTweaksGuiTooltipButton(ID_DISPLAY_TOOLTIP, p.getX(), p.getY(), computeBooleanButtonLabel(InvTweaksConfig.PROP_TOOLTIP_PATH, labelDisplayTooltip), I18n.format("invtweaks.settings.displaytooltip.tooltip"), this::actionPerformed);
+        addButton(displayTooltipBtn);
 
         // Check if links to files are supported, if not disable the buttons
         if(!Desktop.isDesktopSupported()) {
@@ -158,7 +159,5 @@ public class InvTweaksGuiSettingsAdvanced extends InvTweaksGuiSettingsAbstract {
                 obf.displayGuiScreen(new InvTweaksGuiSettings(minecraft, parentScreen, config));
 
         }
-
     }
-
 }

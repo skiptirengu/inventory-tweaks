@@ -1,3 +1,4 @@
+/*
 package invtweaks.forge.asm.compatibility;
 
 import invtweaks.forge.asm.ContainerTransformer;
@@ -62,3 +63,4 @@ public class ContainerInfo {
         slotMapMethod = slotMap;
     }
 }
+*/

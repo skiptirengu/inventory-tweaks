@@ -68,7 +68,7 @@ public class VanillaSlotMaps {
         return slotRefs;
     }
 
-    @NotNull
+    /*@NotNull
     public static Map<ContainerSection, List<Slot>> containerHorseSlots(@NotNull HorseInventoryContainer container) {
         @NotNull Map<ContainerSection, List<Slot>> slotRefs = new HashMap<>();
 
@@ -82,7 +82,7 @@ public class VanillaSlotMaps {
         slotRefs.put(ContainerSection.INVENTORY_HOTBAR, container.inventorySlots.subList(size - InvTweaksConst.HOTBAR_SIZE, size));
 
         return slotRefs;
-    }
+    }*/
 
     public static boolean containerHorseIsInventory(@NotNull HorseInventoryContainer container) {
         // TODO is this used anywhere?

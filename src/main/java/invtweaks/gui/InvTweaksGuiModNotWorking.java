@@ -2,8 +2,8 @@ package invtweaks.gui;
 
 import invtweaks.InvTweaksConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,13 +29,13 @@ public class InvTweaksGuiModNotWorking extends InvTweaksGuiSettingsAbstract {
     }
 
     @Override
-    protected void actionPerformed(@NotNull Button guibutton) {
-        // GuiButton
-        switch(guibutton.id) {
-            // Back to main settings screen
-            case ID_DONE:
+    protected void actionPerformed(@NotNull Button guiButton) {
+        if(guiButton instanceof InvTweaksGuiBaseButton) {
+            InvTweaksGuiBaseButton baseButton = (InvTweaksGuiBaseButton) guiButton;
+            // GuiButton
+            if(baseButton.id == ID_DONE) {
                 obf.displayGuiScreen(new InvTweaksGuiSettings(getMinecraft(), parentScreen, config));
+            }
         }
     }
-
 }

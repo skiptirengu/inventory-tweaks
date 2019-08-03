@@ -32,15 +32,23 @@ public class InvTweaksGuiTooltipButton extends InvTweaksGuiBaseButton {
      * Default size is 150, the common "GuiSmallButton" button size.
      */
     public InvTweaksGuiTooltipButton(int id_, int x, int y, @NotNull String displayString_, String tooltip_) {
-        this(id_, x, y, 150, 20, displayString_, tooltip_);
+        this(id_, x, y, InvTweaksGuiBaseButton.DEFAULT_WIDTH, InvTweaksGuiBaseButton.DEFAULT_HEIGHT, displayString_, tooltip_);
+    }
+
+    public InvTweaksGuiTooltipButton(int id_, int x, int y, @NotNull String displayString_, String tooltip_, @Nullable IPressable handler) {
+        this(id_, x, y, InvTweaksGuiBaseButton.DEFAULT_WIDTH, InvTweaksGuiBaseButton.DEFAULT_HEIGHT, displayString_, tooltip_, handler);
     }
 
     public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_) {
-        this(id_, x, y, w, h, displayString_, tooltip_, true);
+        this(id_, x, y, w, h, displayString_, tooltip_, true, null);
     }
 
-    public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_, boolean drawBackground_) {
-        super(id_, x, y, w, h, displayString_);
+    public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_, @Nullable IPressable handler) {
+        this(id_, x, y, w, h, displayString_, tooltip_, true, handler);
+    }
+
+    public InvTweaksGuiTooltipButton(int id_, int x, int y, int w, int h, @NotNull String displayString_, @Nullable String tooltip_, boolean drawBackground_, @Nullable IPressable handler) {
+        super(id_, x, y, w, h, displayString_, handler);
         if(tooltip_ != null) {
             setTooltip(tooltip_);
         }

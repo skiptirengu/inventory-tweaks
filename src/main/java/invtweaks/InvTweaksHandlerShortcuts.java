@@ -97,8 +97,6 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                 double[] yPos = new double[1];
                 GLFW.glfwGetCursorPos(Minecraft.getInstance().mainWindow.getHandle(), xPos, yPos);
 
-                int ex = (int) xPos[0], ey = (int) yPos[0];
-
                 // GO!
                 runShortcut(shortcutToTrigger);
 
@@ -191,7 +189,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                         @Nullable InvTweaksShortcutMapping hotbarShortcut = isShortcutDown(InvTweaksShortcutType.MOVE_TO_SPECIFIC_HOTBAR_SLOT);
                         if(hotbarShortcut != null && !hotbarShortcut.getKeyCodes().isEmpty()) {
                             // TODO Fix this key code mess
-                            String keyName = ""; // Keyboard.getKeyName(hotbarShortcut.getKeyCodes().get(0));
+                            String keyName = GLFW.glfwGetKeyName(hotbarShortcut.getKeyCodes().get(0), 0);
                             shortcutConfig.toIndex = -1 + Integer.parseInt(keyName.replace("NUMPAD", ""));
                         }
                     } else {

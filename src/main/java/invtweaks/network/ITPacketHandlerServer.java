@@ -1,3 +1,4 @@
+/*
 package invtweaks.network;
 
 import invtweaks.network.packets.ITPacket;
@@ -14,3 +15,4 @@ public class ITPacketHandlerServer extends SimpleChannelInboundHandler<ITPacket>
         handler.player.server.addScheduledTask(() -> msg.handle(handler));
     }
 }
+*/
