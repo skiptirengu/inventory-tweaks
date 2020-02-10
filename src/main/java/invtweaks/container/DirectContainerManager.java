@@ -37,7 +37,7 @@ public class DirectContainerManager implements IContainerManager {
     }
 
     private void initSlots() {
-        @Nullable Map<ContainerSection, List<Slot>> refs = InvTweaksObfuscation.getContainerSlotMap(container);
+        @Nullable Map<ContainerSection, List<Slot>> refs = InvTweaks.getContainerSlotMap(container);
         if(refs == null) {
             slotRefs = new HashMap<>();
         } else {

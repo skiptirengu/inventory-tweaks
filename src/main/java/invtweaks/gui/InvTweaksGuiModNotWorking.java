@@ -27,15 +27,4 @@ public class InvTweaksGuiModNotWorking extends InvTweaksGuiSettingsAbstract {
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.help.bugsorting.pt3"), x, 110, 0xBBBBBB);
         drawCenteredString(obf.getFontRenderer(), I18n.format("invtweaks.help.bugsorting.pt4"), x, 150, 0xFFFF99);
     }
-
-    @Override
-    protected void actionPerformed(@NotNull Button guiButton) {
-        if(guiButton instanceof InvTweaksGuiBaseButton) {
-            InvTweaksGuiBaseButton baseButton = (InvTweaksGuiBaseButton) guiButton;
-            // GuiButton
-            if(baseButton.id == ID_DONE) {
-                obf.displayGuiScreen(new InvTweaksGuiSettings(getMinecraft(), parentScreen, config));
-            }
-        }
-    }
 }

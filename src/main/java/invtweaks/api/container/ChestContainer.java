@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * A marker for containers that have a chest-like persistent storage component. Enables the Inventory Tweaks sorting
  * buttons for this container.
- */
+*/
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ChestContainer {

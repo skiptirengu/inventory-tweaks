@@ -12,3 +12,5 @@ http://crowdin.net/project/invtweaks/
 
 If you would like to add a language not currently supported, please submit a
 request to do so before doing all the work in a file directly.
+
+* TODO: LANG FILES NEED TO BE UPDATED TO JSON FORMAT AS PER 1.13+.

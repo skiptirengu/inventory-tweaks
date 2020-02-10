@@ -20,8 +20,8 @@ public class InvTweaksGuiSettingsButton extends InvTweaksGuiIconButton {
 
     private static final Logger log = InvTweaks.log;
 
-    public InvTweaksGuiSettingsButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h, String displayString_, String tooltip, boolean useCustomTexture) {
-        super(cfgManager_, id_, x, y, w, h, displayString_, tooltip, useCustomTexture);
+    public InvTweaksGuiSettingsButton(InvTweaksConfigManager cfgManager_, int x, int y, int w, int h, String displayString_, String tooltip, boolean useCustomTexture) {
+        super(cfgManager_, x, y, w, h, displayString_, tooltip, useCustomTexture);
     }
 
     @Override

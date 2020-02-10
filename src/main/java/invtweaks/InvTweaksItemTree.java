@@ -47,8 +47,6 @@ public class InvTweaksItemTree implements IItemTree {
     private Map<String, List<IItemTreeItem>> itemsByName = new HashMap<>(500);
 
     private String rootCategory;
-    @NotNull
-    private List<OreDictInfo> oresRegistered = new ArrayList<>();
 
     @NotNull
     private List<ItemStack> allGameItems = new ArrayList<ItemStack>();
@@ -423,21 +421,5 @@ public class InvTweaksItemTree implements IItemTree {
 
         //Remember where the last entry was placed in the tree for the API to leave these unsorted.
         lastTreeOrder = highestOrder;
-    }
-
-    private static class OreDictInfo {
-        String category;
-        String name;
-        String oreName;
-        int order;
-        String orePath;
-
-        OreDictInfo(String category_, String name_, String oreName_, int order_, String orePath_) {
-            category = category_;
-            name = name_;
-            oreName = oreName_;
-            order = order_;
-            orePath = orePath_;
-        }
     }
 }

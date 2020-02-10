@@ -10,11 +10,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -110,11 +110,9 @@ public class CommonProxy implements InvTweaksAPI {
 
         channel.writeOutbound(new ITPacketLogin());*/
     }
-
-    @SuppressWarnings("unused")
-    /*public void addServerScheduledTask(@NotNull Runnable task) {
-        server.addScheduledTask(task);
-    }*/
+    public void addServerScheduledTask(@NotNull Runnable task) {
+        server.enqueue((TickDelayedTask) task);
+    }
 
     public void addClientScheduledTask(Runnable task) {
     }

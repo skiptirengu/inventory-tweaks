@@ -2,7 +2,6 @@ package invtweaks;
 
 import invtweaks.api.IItemTreeItem;
 import invtweaks.forge.ClientProxy;
-import invtweaks.forge.InvTweaksModConfig;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -357,7 +356,7 @@ public class InvTweaksConfig {
         properties.put(PROP_ENABLE_SERVER_ITEMSWAP, VALUE_TRUE);
         properties.put(PROP_ENABLE_CONFIG_LOADED_MESSAGE, VALUE_FALSE);
         // TODO: Reenable when it doesn't just break everything
-        //properties.put(PROP_ENABLE_CONTAINER_MIRRORING, VALUE_FALSE);
+        properties.put(PROP_ENABLE_CONTAINER_MIRRORING, VALUE_FALSE);
         properties.put(PROP_INVERT_TOOL_DAMAGE, VALUE_TRUE);
 
         properties.put(PROP_SHORTCUT_ALL_ITEMS, "LEFT_CONTROL+LEFT_SHIFT, RIGHT_CONTROL+RIGHT_SHIFT");
