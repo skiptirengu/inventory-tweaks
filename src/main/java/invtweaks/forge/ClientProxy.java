@@ -8,16 +8,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientProxy extends CommonProxy {
-    public static final KeyBinding KEYBINDING_SORT = new KeyBinding("invtweaks.key.sort", GLFW.GLFW_KEY_R, "invtweaks.key.category");
+    public static final KeyBinding KEYBINDING_SORT = new KeyBinding("invtweaks.key.sort", InputMappings.Type.KEYSYM, GLFW.GLFW_KEY_R, "invtweaks.key.category");
     public boolean serverSupportEnabled = false;
     public boolean serverSupportDetected = false;
     private InvTweaks instance;
@@ -149,10 +149,10 @@ public class ClientProxy extends CommonProxy {
         }
     }
 
-    /*@Override
+    @Override
     public void addClientScheduledTask(@NotNull Runnable task) {
-        Minecraft.getInstance().addScheduledTask(task);
-    }*/
+        Minecraft.getInstance().enqueue(task);
+    }
 
     /*@SubscribeEvent
     public void onConnectionToServer(FMLNetworkEvent.ClientConnectedToServerEvent e) {

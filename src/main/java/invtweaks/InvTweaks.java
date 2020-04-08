@@ -1,5 +1,6 @@
 package invtweaks;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Multimap;
 import invtweaks.api.IItemTree;
 import invtweaks.api.IItemTreeItem;
@@ -8,13 +9,17 @@ import invtweaks.api.container.ContainerSection;
 import invtweaks.container.ContainerSectionManager;
 import invtweaks.container.DirectContainerManager;
 import invtweaks.container.IContainerManager;
+import invtweaks.container.MirroredContainerManager;
 import invtweaks.forge.InvTweaksMod;
+import invtweaks.gui.InvTweaksGuiSettingsButton;
+import invtweaks.gui.InvTweaksGuiSortingButton;
 import invtweaks.integration.ItemListChecker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.CraftingScreen;
+import net.minecraft.client.gui.screen.inventory.CreativeScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
@@ -25,13 +30,23 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
+
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolType;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraftforge.fml.common.Mod;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +66,7 @@ import java.util.stream.Collectors;
  * Contact: jimeo.wan (at) gmail (dot) com Website: <a href="https://inventory-tweaks.readthedocs.org/">https://inventory-tweaks.readthedocs.org/</a>
  * Source code: <a href="https://github.com/kobata/inventory-tweaks">GitHub</a> License: MIT
  */
+
 public class InvTweaks extends InvTweaksObfuscation {
     public static Logger log;
 
@@ -123,6 +139,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         } else {
             log.error("Mod failed to initialize!");
         }
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public static void logInGameStatic(@NotNull String message) {
@@ -148,17 +165,16 @@ public class InvTweaks extends InvTweaksObfuscation {
 
     @NotNull
     public static IContainerManager getContainerManager(@NotNull Container container) {
-        // TODO: Reenable when it doesn't just break everything
-        //if(getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_CONTAINER_MIRRORING).equals(InvTweaksConfig.VALUE_TRUE)) {
-        //    return new MirroredContainerManager(container);
-        //} else {
-        return new DirectContainerManager(container);
-        //}
+        if(getConfigManager().getConfig().getProperty(InvTweaksConfig.PROP_ENABLE_CONTAINER_MIRRORING).equals(InvTweaksConfig.VALUE_TRUE)) {
+        	return new MirroredContainerManager(container);
+        } else {
+        	return new DirectContainerManager(container);
+        }
     }
 
     @NotNull
     public static IContainerManager getCurrentContainerManager() {
-        return getContainerManager(InvTweaksObfuscation.getCurrentContainer());
+        return getContainerManager(InvTweaks.getCurrentContainer());
     }
 
     private static int getContainerRowSize(@NotNull ContainerScreen guiContainer) {
@@ -255,9 +271,6 @@ public class InvTweaks extends InvTweaksObfuscation {
             }
             if(isTimeForPolling()) {
                 unlockKeysIfNecessary();
-            }
-            if(isGuiContainer(guiScreen)) {
-                handleGUILayout((ContainerScreen) guiScreen);
             }
             if(!wasInGUI) {
                 // Right-click is always true on initial open of GUI.
@@ -913,11 +926,11 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private boolean canToolBeReplaced(int currentStackDamage, int itemMaxDamage, int autoRefillThreshhold) {
-        return itemMaxDamage != 0 && itemMaxDamage - currentStackDamage < autoRefillThreshhold && itemMaxDamage - storedStackDamage >= autoRefillThreshhold;
+        return itemMaxDamage != 0 && itemMaxDamage - currentStackDamage <= autoRefillThreshhold && itemMaxDamage - storedStackDamage >= autoRefillThreshhold;
     }
 
     private void handleMiddleClick(Screen guiScreen) {
-        if(GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_MOUSE_BUTTON_2) == 1) {
+        if(GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_MOUSE_BUTTON_3) == GLFW.GLFW_PRESS) {
 
             if(!cfgManager.makeSureConfigurationIsLoaded()) {
                 return;
@@ -934,7 +947,7 @@ public class InvTweaks extends InvTweaksObfuscation {
                     chestAlgorithmButtonDown = true;
 
                     @NotNull IContainerManager containerMgr = getContainerManager(container);
-                    @Nullable Slot slotAtMousePosition = InvTweaksObfuscation.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
+                    @Nullable Slot slotAtMousePosition = InvTweaks.getSlotAtMousePosition((ContainerScreen) getCurrentScreen());
                     @Nullable ContainerSection target = null;
                     if(slotAtMousePosition != null) {
                         target = containerMgr.getSlotSection(getSlotNumber(slotAtMousePosition));
@@ -1012,122 +1025,77 @@ public class InvTweaks extends InvTweaksObfuscation {
     private boolean isRecipeBookVisible(@NotNull ContainerScreen guiContainer) {
         if(guiContainer instanceof InventoryScreen) {
             // TODO Fix method name
-            return ((InventoryScreen) guiContainer).func_194310_f().isVisible();
+            return ((InventoryScreen) guiContainer).getRecipeGui().isVisible();
         } else if(guiContainer instanceof CraftingScreen) {
             // TODO Fix method name
-            return ((CraftingScreen) guiContainer).func_194310_f().isVisible();
+            return ((CraftingScreen) guiContainer).getRecipeGui().isVisible();
         } else {
             return false;
         }
     }
-
-    // TODO figure out this dumb button stuff
-    private void handleGUILayout(@NotNull ContainerScreen guiContainer) {
-        /*@Nullable InvTweaksConfig config = cfgManager.getConfig();
-
-        Container container = guiContainer.getContainer();
-
-        boolean isValidChest = isValidChest(container);
-
-        if(showButtons(container)) {
-            int w = 10, h = 10;
-
-            // Re-layout when NEI/JEI changes states.
-            final boolean isItemListVisible = itemListChecker.isVisible();
-            final boolean wasItemListVisible = itemListChecker.wasVisible();
-            final boolean isRecipeBookVisible = isRecipeBookVisible(guiContainer);
-            final boolean wasRecipeBookVisible = previousRecipeBookVisibility;
-            final boolean relayout = (isItemListVisible != wasItemListVisible) || (isRecipeBookVisible != wasRecipeBookVisible);
-            previousRecipeBookVisibility = isRecipeBookVisible;
-
-            // Look for the mods buttons
-            boolean customButtonsAdded = false;
-
-            List<Button> controlList = guiContainer.buttons;
-            @NotNull List<Button> toRemove = new ArrayList<>();
-            for(@NotNull Button button : controlList) {
-                if(button.id >= InvTweaksConst.JIMEOWAN_ID && button.id < (InvTweaksConst.JIMEOWAN_ID + 4)) {
-                    if(relayout) {
-                        toRemove.add(button);
-                    } else {
-                        customButtonsAdded = true;
-                        break;
-                    }
+    
+    @OnlyIn(Dist.CLIENT)
+	@SubscribeEvent
+	public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
+		//LOGGER.log(Level.INFO, event.getGui().getClass());
+    	// Check for custom button texture
+        boolean customTextureAvailable = hasTexture(new ResourceLocation("inventorytweaks", "textures/gui/button10px.png"));
+        if (event.getGui() instanceof ContainerScreen && !(event.getGui() instanceof CreativeScreen)) {
+        	//log.info("GUI Initialization");
+        	ContainerScreen guiContainer = (ContainerScreen) event.getGui();
+        	Container cont = guiContainer.getContainer();
+        	if(!showButtons(cont)) return;
+        	//Only proceed if you need to show buttons here
+        	int x = guiContainer.getGuiLeft() + guiContainer.getXSize() - 16, y = guiContainer.getGuiTop() + 5;
+        	int w = 10, h = 10;
+        	//log.info(cont.getClass().getName());
+            // Inventory button
+            if(!isValidChest(cont)) {
+               if(hasRecipeButton(guiContainer)) {
+                    x -= 20;
                 }
+               	try {
+					event.addWidget(new InvTweaksGuiSettingsButton(cfgManager, x, y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
+               	} catch (Exception e) {
+					Throwables.throwIfUnchecked(e);
+					throw new RuntimeException(e);
+				}
             }
-            controlList.removeAll(toRemove);
-            guiContainer.buttonList = controlList;
+            // Chest buttons
+            else {
+                // Reset sorting algorithm selector
+                chestAlgorithmClickTimestamp = 0;
+                @Nullable InvTweaksConfig config = cfgManager.getConfig();
+                boolean isChestWayTooBig = isLargeChest(guiContainer.getContainer());
 
-            if(!customButtonsAdded) {
-
-                // Check for custom button texture
-                boolean customTextureAvailable = hasTexture(new ResourceLocation("inventorytweaks", "textures/gui/button10px.png"));
-
-                int id = InvTweaksConst.JIMEOWAN_ID, x = guiContainer.getGuiLeft() + guiContainer.getXSize() - 16, y = guiContainer.getGuiTop() + 5;
-                // Inventory button
-                if(!isValidChest) {
-                    *//*if(hasRecipeButton(guiContainer)) {
-                        x -= 20;
-                    }*//*
-                    controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id, x, y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
+                // NotEnoughItems/JustEnoughItems compatibility
+                if(isChestWayTooBig && itemListChecker.isVisible()) {
+                    x -= 20;
+                    y += 50;
+                } else if(hasRecipeButton(guiContainer)) {
+                    x -= 20;
                 }
 
-                // Chest buttons
-                else {
-                    // Reset sorting algorithm selector
-                    chestAlgorithmClickTimestamp = 0;
-
-                    boolean isChestWayTooBig = isLargeChest(guiContainer.getContainer());
-
-                    // NotEnoughItems/JustEnoughItems compatibility
-                    if(isChestWayTooBig && isItemListVisible) {
-                        x -= 20;
-                        y += 50;
-                    }*//* else if(hasRecipeButton(guiContainer)) {
-                        x -= 20;
-                    }*//*
-
-                    // Settings button
-                    controlList.add(new InvTweaksGuiSettingsButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 1, (isChestWayTooBig) ? y - 3 : y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
-
-                    // Sorting buttons
-                    if(!config.getProperty(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS).equals("false")) {
-                        int rowSize = getContainerRowSize(guiContainer);
-                        @NotNull Button button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 37, (isChestWayTooBig) ? y + 38 : y, w, h, "s", I18n.format("invtweaks.button.chest1.tooltip"), SortingMethod.DEFAULT, rowSize, customTextureAvailable);
-                        controlList.add(button);
-
-                        if(rowSize <= 9) {
-                            button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 13, (isChestWayTooBig) ? y + 12 : y, w, h, "h", I18n.format("invtweaks.button.chest3.tooltip"), SortingMethod.HORIZONTAL, rowSize, customTextureAvailable);
-                            controlList.add(button);
-
-                            //noinspection UnusedAssignment (Using ++ for extensibility)
-                            button = new InvTweaksGuiSortingButton(cfgManager, id++, (isChestWayTooBig) ? x + 22 : x - 25, (isChestWayTooBig) ? y + 25 : y, w, h, "v", I18n.format("invtweaks.button.chest2.tooltip"), SortingMethod.VERTICAL, rowSize, customTextureAvailable);
-                            controlList.add(button);
+                // Settings button
+                try {
+                	int rowSize = getContainerRowSize(guiContainer);
+                	if(!isGuiInventoryCreative(guiContainer)) {
+                		event.addWidget(new InvTweaksGuiSettingsButton(cfgManager, (isChestWayTooBig) ? x + 22 : x - 1, (isChestWayTooBig) ? y - 3 : y, w, h, "...", I18n.format("invtweaks.button.settings.tooltip"), customTextureAvailable));
+                	}
+                	if(!config.getProperty(InvTweaksConfig.PROP_SHOW_CHEST_BUTTONS).equals("false")) {
+						event.addWidget(new InvTweaksGuiSortingButton(cfgManager, (isChestWayTooBig) ? x + 22 : x - 37, (isChestWayTooBig) ? y + 38 : y, w, h, "s", I18n.format("invtweaks.button.chest1.tooltip"), SortingMethod.DEFAULT, rowSize, customTextureAvailable));
+						if(rowSize <= 9) {
+							event.addWidget(new InvTweaksGuiSortingButton(cfgManager,(isChestWayTooBig) ? x + 22 : x - 13, (isChestWayTooBig) ? y + 12 : y, w, h, "h", I18n.format("invtweaks.button.chest3.tooltip"), SortingMethod.HORIZONTAL, rowSize, customTextureAvailable));
+							event.addWidget(new InvTweaksGuiSortingButton(cfgManager,(isChestWayTooBig) ? x + 22 : x - 25, (isChestWayTooBig) ? y + 25 : y, w, h, "v", I18n.format("invtweaks.button.chest2.tooltip"), SortingMethod.VERTICAL, rowSize, customTextureAvailable));
                         }
-
-                    }
-                }
+					}
+                } catch (Exception e) {
+					Throwables.throwIfUnchecked(e);
+					throw new RuntimeException(e);
+				}
             }
-        } else {
-            // Remove "..." button from non-survival tabs of the creative screen
-            if(isGuiInventoryCreative(guiContainer)) {
-                List<Button> controlList = guiContainer.buttonList;
-                @Nullable Button buttonToRemove = null;
-                for(@NotNull Button o : controlList) {
-                    if(o.id == InvTweaksConst.JIMEOWAN_ID) {
-                        buttonToRemove = o;
-                        break;
-                    }
-                }
-                if(buttonToRemove != null) {
-                    controlList.remove(buttonToRemove);
-                }
-
-            }
-        }*/
-
-    }
-
+        }
+	}
     private void handleShortcuts(@NotNull ContainerScreen guiScreen) {
         // Check open GUI
         if(!(isValidChest(guiScreen.getContainer()) || isValidInventory(guiScreen.getContainer()))) {
@@ -1136,7 +1104,7 @@ public class InvTweaks extends InvTweaksObfuscation {
 
         // Configurable shortcuts
         long handle = guiScreen.getMinecraft().mainWindow.getHandle();
-        if(GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_1) == 1 || GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_2) == 1) {
+        if(GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS || GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_2) == GLFW.GLFW_PRESS) {
             if(!mouseWasDown) {
                 mouseWasDown = true;
 

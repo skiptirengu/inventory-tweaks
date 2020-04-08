@@ -21,6 +21,113 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class VanillaSlotMaps {
+
+    public static Map<ContainerSection, List<Slot>> getSlotMapFromContainerClass(String classname, Container container) {
+    	String contPrefix = "net.minecraft.inventory.container.";
+    	if (classname.equalsIgnoreCase(contPrefix+"PlayerContainer")) {
+    		return containerPlayerSlots(container);
+    	} else if (
+    			classname.equalsIgnoreCase(contPrefix+"MerchantContainer") || 
+    			classname.equalsIgnoreCase(contPrefix+"HopperContainer") ||
+    			classname.equalsIgnoreCase(contPrefix+"BeaconContainer") ||
+    			classname.equalsIgnoreCase(contPrefix+"StonecutterContainer") ||
+    			classname.equalsIgnoreCase(contPrefix+"CartographyContainer") ||
+    			classname.equalsIgnoreCase(contPrefix+"GrindstoneContainer") ||
+    			classname.equalsIgnoreCase(contPrefix+"LecternContainer") ||
+    			classname.equalsIgnoreCase(contPrefix+"LoomContainer")) 
+    	{
+    	    return unknownContainerSlots(container);	
+    	} else if (classname.equalsIgnoreCase(contPrefix+"RepairContainer")) {
+    		return containerRepairSlots(container);
+    	} else if (classname.equalsIgnoreCase(contPrefix+"BrewingStandContainer")) {
+    		return containerBrewingSlots(container);
+    	} else if (classname.equalsIgnoreCase(contPrefix+"WorkbenchContainer")) {
+    		return containerWorkbenchSlots(container);
+    	} else if (classname.equalsIgnoreCase(contPrefix+"EnchantmentContainer")) {
+    		return containerEnchantmentSlots(container);
+    	} else if (classname.equalsIgnoreCase(contPrefix+"BlastFurnaceContainer") || classname.equalsIgnoreCase(contPrefix+"FurnaceContainer") || classname.equalsIgnoreCase(contPrefix+"SmokerContainer")) {
+    		return containerFurnaceSlots(container);
+    	} else if (classname.equalsIgnoreCase(contPrefix+"DispenserContainer") || classname.equalsIgnoreCase(contPrefix+"ChestContainer") || classname.equalsIgnoreCase(contPrefix+"ShulkerBoxContainer")) {
+    		return containerChestDispenserSlots(container);
+    	} else {
+    		return unknownContainerSlots(container);
+    	}
+	}    
+    
+    public static boolean getIsChest(String classname, Container container, boolean override) {
+    	String contPrefix = "net.minecraft.inventory.container.";
+    	if (override) return true;
+    	if (classname.equalsIgnoreCase(contPrefix+"DispenserContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"ChestContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"ShulkerBoxContainer")) 
+    	{
+    	    return true;	
+    	} else {
+    		return false;
+    	}
+	}  
+    public static short getChestRowSize(String classname, Container container) {
+    	String contPrefix = "net.minecraft.inventory.container.";
+    	if (getIsChest(classname,container,false)) {
+    		if (classname.equalsIgnoreCase(contPrefix+"DispenserContainer")) {
+    			return 3;
+    		}
+    		return 9;
+    	}
+    	return 1;
+    }
+    
+    public static boolean getShouldShowButtons(String classname, Container container, boolean override) {
+    	String contPrefix = "net.minecraft.inventory.container.";
+    	if (override) return true;
+    	if (classname.equalsIgnoreCase(contPrefix+"PlayerContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"MerchantContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"HopperContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"BeaconContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"CartographyContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"GrindstoneContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"LoomContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"RepairContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"BrewingStandContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"WorkbenchContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"BlastFurnaceContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"FurnaceContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"SmokerContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"DispenserContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"ChestContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"ShulkerBoxContainer")) 
+    	{
+    	    return true;	
+    	} else {
+    		return false;
+    	}
+	}   
+    
+    public static boolean getValidInventory(String classname, Container container, boolean override) {
+    	String contPrefix = "net.minecraft.inventory.container.";
+    	if (override) return true;
+    	if (classname.equalsIgnoreCase(contPrefix+"PlayerContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"MerchantContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"HopperContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"BeaconContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"StonecutterContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"CartographyContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"GrindstoneContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"LoomContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"RepairContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"BrewingStandContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"WorkbenchContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"EnchantmentContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"BlastFurnaceContainer") ||
+    		classname.equalsIgnoreCase(contPrefix+"FurnaceContainer") || 
+    		classname.equalsIgnoreCase(contPrefix+"SmokerContainer"))
+    	{
+    	    return true;	
+    	} else {
+    		return false;
+    	}
+	}   
+    
     @NotNull
     public static Map<ContainerSection, List<Slot>> containerPlayerSlots(@NotNull Container container) {
         @NotNull Map<ContainerSection, List<Slot>> slotRefs = new HashMap<>();
@@ -33,8 +140,8 @@ public class VanillaSlotMaps {
         slotRefs.put(ContainerSection.INVENTORY_HOTBAR, container.inventorySlots.subList(36, 45));
 
         return slotRefs;
-    }
-
+    }    
+    
     @OnlyIn(Dist.CLIENT)
     public static boolean containerCreativeIsInventory(CreativeScreen.CreativeContainer container) {
         @Nullable Screen currentScreen = Minecraft.getInstance().currentScreen;

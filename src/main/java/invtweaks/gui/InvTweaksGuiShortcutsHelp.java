@@ -1,3 +1,4 @@
+
 package invtweaks.gui;
 
 import invtweaks.InvTweaksConfig;
@@ -13,9 +14,6 @@ import org.lwjgl.glfw.GLFW;
 
 
 public class InvTweaksGuiShortcutsHelp extends Screen {
-
-    private final static int ID_DONE = 0;
-
     private InvTweaksObfuscation obf;
     private Screen parentScreen;
     private InvTweaksConfig config;
@@ -29,7 +27,7 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
 
     // TODO initGui
     public void initGui() {
-        addButton(new InvTweaksGuiBaseButton(ID_DONE, width / 2 - 100, height / 6 + 168, width, height, "Done"));
+        addButton(new InvTweaksGuiBaseButton(width / 2 - 100, height / 6 + 168, width, height, "Done",btn -> {obf.displayGuiScreen(parentScreen);}));
     }
 
     @Override
@@ -72,13 +70,6 @@ public class InvTweaksGuiShortcutsHelp extends Screen {
         drawShortcutLine(I18n.format("invtweaks.help.shortcuts.selectconfig"), "0-9 + " + sortKeyName, 0x0088FFFF, y);
 
         super.render(i, j, f);
-    }
-
-    protected void actionPerformed(@NotNull Button guiButton) {
-        // GuiButton
-        if(guiButton instanceof InvTweaksGuiBaseButton && ((InvTweaksGuiBaseButton) guiButton).id == ID_DONE) {
-            obf.displayGuiScreen(parentScreen);
-        }
     }
 
     @Override

@@ -55,7 +55,7 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
 
         // TODO: ResourceLocation
         // TODO: subtypes
-        @Nullable Item original = GameRegistry.findRegistry(Item.class).getValue(new ResourceLocation(wantedId));
+        @Nullable Item original = GameRegistry.findRegistry(Item.class).getValue(ResourceLocation.create(wantedId,':'));
         if(original != null) {
             hasSubtypes = false;
             // hasSubtypes = original.getHasSubtypes();
@@ -144,7 +144,6 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                 }
             }
         }
-
         //// Proceed to replacement
 
         if(!replacementStack.isEmpty() || (refillBeforeBreak && !container.getSlot(slot).getStack().isEmpty())) {
@@ -172,9 +171,11 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                         i = i_;
                         // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                         expectedItemId = containerMgr.getItemStack(i).getItem().getRegistryName().toString();
+                        log.info("replacing with: "+ expectedItemId);
                     } else {
                         i = containerMgr.getFirstEmptyIndex();
                         expectedItemId = null;
+                        log.info("replacing with: nothing(something's wrong)");
                     }
                     refillBeforeBreak = refillBeforeBreak_;
                     return this;
@@ -188,7 +189,6 @@ public class InvTweaksHandlerAutoRefill extends InvTweaksObfuscation {
                     // TODO: Look for better update detection now that this runs tick-based. It'll probably fail a bit if latency is > 50ms (1 tick)
                     // Since last tick, things might have changed
                     @NotNull ItemStack stack = containerMgr.getItemStack(i);
-
                     // TODO: It looks like Mojang changed the internal name type to ResourceLocation. Evaluate how much of a pain that will be.
                     if(!stack.isEmpty() && StringUtils.equals(stack.getItem().getRegistryName().toString(), expectedItemId) || this.refillBeforeBreak) {
                         if(containerMgr.move(targetedSlot, i) || containerMgr.move(i, targetedSlot)) {

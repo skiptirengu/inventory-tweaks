@@ -1,6 +1,7 @@
 package invtweaks;
 
 import invtweaks.api.container.ContainerSection;
+import invtweaks.container.VanillaSlotMaps;
 import invtweaks.gui.InvTweaksGuiBaseButton;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
@@ -10,10 +11,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.screen.inventory.CreativeScreen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ChestContainer;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ArmorItem;
@@ -31,13 +32,15 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Minecraft 1.3 Obfuscation layer
- *
- * @author Jimeo Wan
+ * De-obfuscated to some extent during port to 1.14.4. 
+ * Does not rely on ContainerInfo/ContainerTransformer anymore, but may use more overhead.
+ * @author Jimeo Wan, airrice
  */
 public class InvTweaksObfuscation {
 
@@ -48,7 +51,7 @@ public class InvTweaksObfuscation {
         mc = mc_;
     }
 
-    // Minecraft members
+	// Minecraft members
 
     @Nullable
     public static String getNamespacedID(@Nullable String id) {
@@ -136,54 +139,46 @@ public class InvTweaksObfuscation {
         return guiContainer.height - ((int) yPos[0] * guiContainer.height) / getDisplayHeight() - 1;
     }
 
-    @Contract("!null->_")
-    @SuppressWarnings({"unused", "SameReturnValue"})
-    public static int getSpecialChestRowSize(Container container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$rowSize()"
-        return 0;
+    public static short getSpecialChestRowSize(Container container) {
+    	short toReturn = VanillaSlotMaps.getChestRowSize(container.getClass().getName(),container);
+        return toReturn;
     }
 
     // EntityPlayer members
 
     // Static access
-    @Contract("!null->_")
-    @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isValidChest(Container container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$validChest()"
-        return false;
+    	boolean isChest = VanillaSlotMaps.getIsChest(container.getClass().getName(),container,false);
+        return isChest;
     }
 
-    @Contract("!null->_")
-    @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isLargeChest(Container container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$largeChest()"
-        return false;
+    	if (isValidChest(container) && container.getInventory().size() > InvTweaksConst.INVENTORY_SIZE) {
+    		return true;
+    	}
+    	return false;
     }
 
     // InventoryPlayer members
 
-    @Contract("!null->_")
-    @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean isValidInventory(Container container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$validInventory()"
-        // TODO set to true just for test purposes
-        return true;
+    	return true;
+    	//boolean valid = VanillaSlotMaps.getValidInventory(container.getClass().getName(),container,false);
+        //return valid;
     }
 
-    @Contract("!null->_")
-    @SuppressWarnings({"unused", "SameReturnValue"})
     public static boolean showButtons(Container container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$showButtons()"
-        return false;
+    	return true;
+        //boolean shouldShow = VanillaSlotMaps.getShouldShowButtons(container.getClass().getName(),container,false);
+        //return shouldShow;
     }
 
-    @Contract("!null->_")
-    @SuppressWarnings({"unused", "SameReturnValue"})
     public static Map<ContainerSection, List<Slot>> getContainerSlotMap(Container container) {
-        // This method gets replaced by the transformer with "return container.invtweaks$slotMap()"
-        return null;
+    	Map<ContainerSection, List<Slot>> toReturn = new HashMap<ContainerSection, List<Slot>>();
+        toReturn = VanillaSlotMaps.getSlotMapFromContainerClass(container.getClass().getName(),container);
+        return toReturn;
     }
-
+    
     public static boolean isGuiContainer(@Nullable Object o) { // GuiContainer (abstract class)
         return o != null && o instanceof ContainerScreen;
     }
@@ -218,10 +213,10 @@ public class InvTweaksObfuscation {
 
     public static Container getCurrentContainer() {
         Minecraft mc = Minecraft.getInstance();
-        Container currentContainer = mc.player.container;
-        if(InvTweaksObfuscation.isGuiContainer(mc.currentScreen)) {
+        Container currentContainer = mc.player.openContainer;
+        /*if(InvTweaks.isGuiContainer(mc.currentScreen)) {
             currentContainer = ((ContainerScreen) mc.currentScreen).getContainer();
-        }
+        }*/
 
         return currentContainer;
     }

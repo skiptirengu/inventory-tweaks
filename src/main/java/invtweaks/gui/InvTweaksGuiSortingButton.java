@@ -20,8 +20,8 @@ public class InvTweaksGuiSortingButton extends InvTweaksGuiIconButton {
     private SortingMethod algorithm;
     private int rowSize;
 
-    public InvTweaksGuiSortingButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h, String displayString_, String tooltip, SortingMethod algorithm_, int rowSize_, boolean useCustomTexture) {
-        super(cfgManager_, id_, x, y, w, h, displayString_, tooltip, useCustomTexture);
+    public InvTweaksGuiSortingButton(InvTweaksConfigManager cfgManager_, int x, int y, int w, int h, String displayString_, String tooltip, SortingMethod algorithm_, int rowSize_, boolean useCustomTexture) {
+        super(cfgManager_, x, y, w, h, displayString_, tooltip, useCustomTexture);
         algorithm = algorithm_;
         rowSize = rowSize_;
     }

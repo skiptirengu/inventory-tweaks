@@ -2,6 +2,7 @@ package invtweaks.container;
 
 import invtweaks.InvTweaks;
 import invtweaks.api.container.ContainerSection;
+import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
@@ -22,12 +23,13 @@ public class ContainerSectionManager {
     private ContainerSection section;
 
     public ContainerSectionManager(ContainerSection section_) throws Exception {
-        this(InvTweaks.getCurrentContainerManager(), section_);
+        this(InvTweaks.getContainerManager(Minecraft.getInstance().player.openContainer), section_);
     }
 
     public ContainerSectionManager(IContainerManager manager, ContainerSection section_) throws Exception {
         containerMgr = manager;
         section = section_;
+        //InvTweaks.log.info(containerMgr.getClass().toString());
         if(!containerMgr.hasSection(section)) {
             throw new Exception("Section not available");
         }

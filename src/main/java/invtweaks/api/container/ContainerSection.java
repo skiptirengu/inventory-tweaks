@@ -30,7 +30,7 @@ package invtweaks.api.container;
 public enum ContainerSection {/**
  * The player's inventory
  */
-INVENTORY,
+	INVENTORY,
     /**
      * The player's inventory (only the hotbar)
      */

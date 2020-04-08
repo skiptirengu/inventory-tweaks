@@ -6,7 +6,6 @@ import invtweaks.InvTweaksConfigManager;
 import invtweaks.api.IItemTreeCategory;
 import invtweaks.api.IItemTreeItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;

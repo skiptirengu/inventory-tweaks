@@ -1,7 +1,6 @@
 package invtweaks.container;
 
 import invtweaks.InvTweaks;
-import invtweaks.InvTweaksObfuscation;
 import invtweaks.api.container.ContainerSection;
 import invtweaks.forge.InvTweaksMod;
 import net.minecraft.inventory.container.Container;
@@ -31,7 +30,7 @@ public class MirroredContainerManager implements IContainerManager {
     public MirroredContainerManager(Container cont) {
         container = cont;
 
-        slotRefs = InvTweaksObfuscation.getContainerSlotMap(container);
+        slotRefs = InvTweaks.getContainerSlotMap(container);
         if(slotRefs == null) {
             slotRefs = new HashMap<>();
         }
@@ -163,7 +162,7 @@ public class MirroredContainerManager implements IContainerManager {
             if(!preferInventory && section != ContainerSection.INVENTORY || (preferInventory && section != ContainerSection.INVENTORY_NOT_HOTBAR && section != ContainerSection.INVENTORY_HOTBAR)) {
                 int i = 0;
                 for(Slot slot : slotRefs.get(section)) {
-                    if(InvTweaksObfuscation.getSlotNumber(slot) == slotNumber) {
+                    if(InvTweaks.getSlotNumber(slot) == slotNumber) {
                         return i;
                     }
                     i++;
@@ -180,7 +179,7 @@ public class MirroredContainerManager implements IContainerManager {
         for(ContainerSection section : slotRefs.keySet()) {
             if(section != ContainerSection.INVENTORY) {
                 for(Slot slot : slotRefs.get(section)) {
-                    if(InvTweaksObfuscation.getSlotNumber(slot) == slotNumber) {
+                    if(InvTweaks.getSlotNumber(slot) == slotNumber) {
                         return section;
                     }
                 }

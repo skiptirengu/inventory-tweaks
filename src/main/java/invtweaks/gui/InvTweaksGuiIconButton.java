@@ -21,8 +21,8 @@ public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
     protected InvTweaksConfigManager cfgManager;
     private boolean useCustomTexture;
 
-    public InvTweaksGuiIconButton(InvTweaksConfigManager cfgManager_, int id_, int x, int y, int w, int h, String displayString_, String tooltip, boolean useCustomTexture_) {
-        super(id_, x, y, w, h, displayString_, tooltip);
+    public InvTweaksGuiIconButton(InvTweaksConfigManager cfgManager_, int x, int y, int w, int h, String displayString_, String tooltip, boolean useCustomTexture_) {
+        super(x, y, w, h, displayString_, tooltip);
         cfgManager = cfgManager_;
         useCustomTexture = useCustomTexture_;
     }
