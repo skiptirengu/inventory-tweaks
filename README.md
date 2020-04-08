@@ -2,6 +2,10 @@
 
 *InvTweaks now runs on ForgeGradle! The build process has changed, check [the wiki](https://github.com/Kobata/inventory-tweaks/wiki/Getting-started) :)*
 
+# MC 1.14
+
+Download the mod compatible with Minecraft 1.14 [__HERE__](https://github.com/skiptirengu/inventory-tweaks/releases/tag/1.7)
+
 ## What's this project about
 
 This Open Source project (see [License](https://github.com/mkalam-alami/inventory-tweaks/blob/master/src/doc/license.txt)) is a client mod for [Minecraft](http://www.minecraft.net/), a game by [Mojang AB](http://mojang.com/). It implements various features to help players with the management of inventories and chests. A lot of effort has been put to make it as customizable as possible, without being annoying to set up.
