@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import invtweaks.InvTweaksConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiUtils;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,7 +35,7 @@ public class InvTweaksGuiIconButton extends InvTweaksGuiTooltipButton {
         // TODO what getHoverState returns??
         // int k = getHoverState(isMouseOverButton(mouseX, mouseY));
         int k = isMouseOverButton(mouseX, mouseY) ? 1 : 0;
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        // GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         if(useCustomTexture) {
             Minecraft.getInstance().getTextureManager().bindTexture(resourceButtonCustom);

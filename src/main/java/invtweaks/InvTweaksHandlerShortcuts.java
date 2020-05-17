@@ -95,7 +95,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
             if(shortcutToTrigger != null) {
                 double[] xPos = new double[1];
                 double[] yPos = new double[1];
-                GLFW.glfwGetCursorPos(Minecraft.getInstance().mainWindow.getHandle(), xPos, yPos);
+                GLFW.glfwGetCursorPos(Minecraft.getInstance().getMainWindow().getHandle(), xPos, yPos);
 
                 // GO!
                 runShortcut(shortcutToTrigger);
@@ -107,7 +107,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
 
                 // Fixes a tiny glitch (Steve looks for a short moment
                 // at [0, 0] because of the mouse reset).
-                GLFW.glfwSetCursorPos(Minecraft.getInstance().mainWindow.getHandle(), xPos[0], yPos[0]);
+                GLFW.glfwSetCursorPos(Minecraft.getInstance().getMainWindow().getHandle(), xPos[0], yPos[0]);
             }
         } catch(Exception e) {
             InvTweaks.logInGameErrorStatic("invtweaks.shortcut.error", e);
@@ -265,7 +265,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
                 }
 
                 // Shortcut modifiers
-                shortcutConfig.forceEmptySlot = GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_MOUSE_BUTTON_2) == 1;
+                shortcutConfig.forceEmptySlot = GLFW.glfwGetMouseButton(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_2) == 1;
                 shortcutConfig.action = shortcut.getAction();
                 shortcutConfig.scope = shortcut.getScope();
 
@@ -282,7 +282,7 @@ public class InvTweaksHandlerShortcuts extends InvTweaksObfuscation {
             loadShortcuts(); // Reset mappings
         }
         for(int keyCode : pressedKeys.keySet()) {
-            if(keyCode > 0 && GLFW.glfwGetKey(Minecraft.getInstance().mainWindow.getHandle(), keyCode) == 1) {
+            if(keyCode > 0 && GLFW.glfwGetKey(Minecraft.getInstance().getMainWindow().getHandle(), keyCode) == 1) {
                 if(!pressedKeys.get(keyCode)) {
                     pressedKeys.put(keyCode, true);
                 }

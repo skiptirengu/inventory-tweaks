@@ -1,3 +1,4 @@
+/*
 package invtweaks.forge;
 
 import invtweaks.gui.InvTweaksGuiSettings;
@@ -34,3 +35,4 @@ public class ModGuiFactory implements IModGuiFactory {
         return null;
     }
 }
+*/

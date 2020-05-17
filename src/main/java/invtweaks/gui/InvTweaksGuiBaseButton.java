@@ -1,6 +1,6 @@
 package invtweaks.gui;
 
-import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Thiago Oliveira
  */
-public class InvTweaksGuiBaseButton extends GuiButtonExt {
+public class InvTweaksGuiBaseButton extends ExtendedButton {
 
     public static final int DEFAULT_WIDTH = 150;
     public static final int DEFAULT_HEIGHT = 20;

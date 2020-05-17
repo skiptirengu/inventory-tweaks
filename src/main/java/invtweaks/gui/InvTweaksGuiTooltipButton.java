@@ -4,8 +4,8 @@ import invtweaks.InvTweaksConst;
 import invtweaks.InvTweaksObfuscation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.client.config.HoverChecker;
+import net.minecraftforge.fml.client.gui.GuiUtils;
+import net.minecraftforge.fml.client.gui.HoverChecker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

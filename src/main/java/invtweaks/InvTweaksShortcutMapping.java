@@ -66,7 +66,7 @@ public class InvTweaksShortcutMapping {
                 }
             }
             // AltGr also activates LCtrl, make sure the real LCtrl has been pressed
-            else if(!pressedKeys.get(keyToHold) || GLFW.glfwGetKey(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_KEY_MENU) == 1) {
+            else if(!pressedKeys.get(keyToHold) || GLFW.glfwGetKey(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_KEY_MENU) == 1) {
                 return false;
             }
         }

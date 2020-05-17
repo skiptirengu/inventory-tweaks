@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.PlayerController;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ChestContainer;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ArmorItem;
@@ -26,7 +25,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -66,13 +64,13 @@ public class InvTweaksObfuscation {
     public static int getDisplayWidth() {
         // TODO Check
         // return FMLClientHandler.instance().getClient().displayWidth;
-        return Minecraft.getInstance().mainWindow.getWidth();
+        return Minecraft.getInstance().getMainWindow().getWidth();
     }
 
     public static int getDisplayHeight() {
         // TODO Check
         // return FMLClientHandler.instance().getClient().displayHeight;
-        return Minecraft.getInstance().mainWindow.getHeight();
+        return Minecraft.getInstance().getMainWindow().getHeight();
     }
 
     public static boolean areItemStacksEqual(@NotNull ItemStack itemStack1, @NotNull ItemStack itemStack2) {
@@ -127,7 +125,7 @@ public class InvTweaksObfuscation {
     private static int getMouseX(@NotNull ContainerScreen guiContainer) {
         double[] xPos = new double[1];
         double[] yPos = new double[1];
-        GLFW.glfwGetCursorPos(guiContainer.getMinecraft().mainWindow.getHandle(), xPos, yPos);
+        GLFW.glfwGetCursorPos(guiContainer.getMinecraft().getMainWindow().getHandle(), xPos, yPos);
         return ((int) xPos[0] * guiContainer.width) / getDisplayWidth();
     }
 
@@ -135,7 +133,7 @@ public class InvTweaksObfuscation {
     private static int getMouseY(@NotNull ContainerScreen guiContainer) {
         double[] xPos = new double[1];
         double[] yPos = new double[1];
-        GLFW.glfwGetCursorPos(guiContainer.getMinecraft().mainWindow.getHandle(), xPos, yPos);
+        GLFW.glfwGetCursorPos(guiContainer.getMinecraft().getMainWindow().getHandle(), xPos, yPos);
         return guiContainer.height - ((int) yPos[0] * guiContainer.height) / getDisplayHeight() - 1;
     }
 
