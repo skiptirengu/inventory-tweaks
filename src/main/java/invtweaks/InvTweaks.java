@@ -44,6 +44,8 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraftforge.fml.common.Mod;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.Logger;
@@ -928,7 +930,7 @@ public class InvTweaks extends InvTweaksObfuscation {
     }
 
     private void handleMiddleClick(Screen guiScreen) {
-        if(GLFW.glfwGetMouseButton(Minecraft.getInstance().getMainWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_3) == GLFW.GLFW_PRESS) {
+        if(GLFW.glfwGetMouseButton(Minecraft.getInstance().mainWindow.getHandle(), GLFW.GLFW_MOUSE_BUTTON_3) == GLFW.GLFW_PRESS) {
 
             if(!cfgManager.makeSureConfigurationIsLoaded()) {
                 return;
@@ -1101,7 +1103,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         }
 
         // Configurable shortcuts
-        long handle = guiScreen.getMinecraft().getMainWindow().getHandle();
+        long handle = guiScreen.getMinecraft().mainWindow.getHandle();
         if(GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS || GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_2) == GLFW.GLFW_PRESS) {
             if(!mouseWasDown) {
                 mouseWasDown = true;
@@ -1128,7 +1130,7 @@ public class InvTweaks extends InvTweaksObfuscation {
         if(sortKeyEnabled && !textboxMode) {
             int keyCode = cfgManager.getConfig().getSortKeyCode();
             if(keyCode > 0) {
-                boolean isKeyDown = GLFW.glfwGetKey(Minecraft.getInstance().getMainWindow().getHandle(), keyCode) == 1;
+                boolean isKeyDown = GLFW.glfwGetKey(Minecraft.getInstance().mainWindow.getHandle(), keyCode) == 1;
                 return isKeyDown;
             } else {
                 // TODO WTF?
